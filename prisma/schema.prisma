@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id  Int @id @default(autoincrement()) 
+  email String @unique
+  username String
+  password String?
+  image String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  accesses  UserAccess[]
+}
+
+model Trace {
+  id Int @id @default(autoincrement())
+  metric String?
+  name      String
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  accesses  UserAccess[]
+
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  name      String
+  organization  Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  traces    Trace[] 
+}
+
+model Organization {
+  id        Int       @id @default(autoincrement())
+  name      String
+  projects  Project[] 
+}
+
+model UserAccess {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  traceId   Int
+  accessType AccessType // Access can be viewer, editor, or owner
+  
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trace     Trace   @relation(fields: [traceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, traceId]) // Ensure a user can have only one access type per trace
+}
+
+enum AccessType {
+  viewer
+  editor
+  owner
+}
