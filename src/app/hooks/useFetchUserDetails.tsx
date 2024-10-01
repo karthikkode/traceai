@@ -1,117 +1,49 @@
-import { useState, useEffect, useCallback } from "react";
-import { db } from "@/lib/db";
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
-// Fetch User Data
-const getUserData = async (email: string) => {
-  const user = await axios.get("/api/user/userDetails", {
-    params: { email },
-  });
-  return user.data;
-};
-
-// Fetch User's Role Data
-const getUserRoleData = async (userRoleId: bigint) => {
-  const userRole = await axios.get("/api/user/userRoleDetails", {
-    params: { userRoleId },
-  });
-  return userRole.data;
-};
-
-// Fetch Organization Data
-const getOrganizationData = async (organizationId: bigint) => {
-  const userOrganization = await axios.get("/api/user/userOrganization", {
-    params: { organizationId },
-  });
-  return userOrganization.data;
-};
-
-// Fetch User's Journey Data
-const getUserAssetData = async (userId: string) => {
-  const userAsset = await axios.get("/api/user/userAssetDetails", {
-    params: { userId },
-  });
-  return userAsset.data;
-};
-
-const getUserJourneyData = async (userJourneyIds: bigint[]) => {
-  const userJourney = await axios.get("/api/user/userJourneyDetails", {
-    params: {
-      userJourneyIds: userJourneyIds.join(","), // Convert array to comma-separated string
-    },
-  });
-  return userJourney.data;
+// Function to fetch user assets
+const getUserAssets = async (email: string) => {
+  try {
+    const res = await axios.get("/api/user/getAssetDetails", {
+      params: { email },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch user assets:", error);
+    return null;
+  }
 };
 
 export const useFetchUserDetails = () => {
-  const session = useSession();
-  const [user, setUser] = useState<any>(null);
-  const [userRole, setUserRole] = useState<any>(null);
-  const [userJourneys, setUserJourneys] = useState<any[]>([]);
+  const [traces, setTraces] = useState<any>(null);
+  const [projects, setProjects] = useState<any>(null);
   const [organization, setOrganization] = useState<any>(null);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const email = session?.data?.user?.email;
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (email) {
-          // Fetch user data
-          const userData = await getUserData(email);
-          setUser(userData);
-
-          // Fetch user role data
-          if (userData.userRoleId) {
-            const roleData = await getUserRoleData(userData.userRoleId);
-            setUserRole(roleData);
-          }
-
-          // Fetch user journeys data
-          const assetData = await getUserAssetData(userData.id);
-
-          const userJourneyIds = assetData.map((item: any) => item.id);
-          const journeyData = await getUserJourneyData(userJourneyIds);
-          setUserJourneys(journeyData);
-
-          // Fetch projects data
-          let projects: any = [];
-          const project = journeyData.map((item: any) =>
-            projects.push(item.project)
-          );
-          setProjects(projects);
-
-          // Fetch organization data if user is part of an organization
-          if (userData.organizationId) {
-            const organizationData = await getOrganizationData(
-              userData.organizationId
-            );
-            setOrganization(organizationData);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching user details:", err);
-        setError("Failed to fetch user details");
-      } finally {
-        setLoading(false);
+      if (status === "authenticated") {
+        const email = session?.user?.email;
+        if (!email) return;
+        const { traces, projects, organization, user } = await getUserAssets(
+          email
+        );
+        setTraces(traces);
+        setProjects(projects);
+        setOrganization(organization);
+        setUser(user);
       }
     };
 
-    if (email) {
+    setLoading(true);
+    if (status !== "loading") {
       fetchData();
+      setLoading(false);
     }
-  }, [email]);
+  }, [session, status]);
 
-  return {
-    user,
-    userRole,
-    userJourneys,
-    projects,
-    organization,
-    loading,
-    error,
-  };
+  return { traces, projects, user, organization, loading };
 };

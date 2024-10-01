@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { organizationName } = body;
+  const { organizationName, userId } = body;
+  console.log(organizationName);
 
   const organization = await db.organization.create({
     data: { name: organizationName },
@@ -31,5 +32,26 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return NextResponse.json({ organization, defaultProject, defaultTrace });
+  const userAccess = await db.userAccess.create({
+    data: {
+      accessType: "owner",
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+      trace: {
+        connect: {
+          id: defaultTrace.id,
+        },
+      },
+    },
+  });
+
+  return NextResponse.json({
+    organization,
+    defaultProject,
+    defaultTrace,
+    userAccess,
+  });
 }
