@@ -9,10 +9,7 @@ import { useEffect, useState } from "react";
 import { useFetchUserDetails } from "@/app/hooks/useFetchUserDetails";
 import CreateOrganizationModal from "@/components/CreateOrganizationModal";
 
-export const description =
-  "A products dashboard with a sidebar navigation and a main content area. The dashboard has a header with a search input and a user menu. The sidebar has a logo, navigation links, and a card with a call to action. The main content area shows an empty state with a call to action.";
-
-export default function () {
+export default function Getstarted() {
   const { traces, projects, user, organization, loading } =
     useFetchUserDetails();
   const session = useSession();
@@ -21,7 +18,7 @@ export default function () {
     if (session?.status === "unauthenticated") {
       router.push("/auth/signin");
     }
-  }, [session?.status]);
+  }, [session?.status, router]);
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">

@@ -25,7 +25,9 @@ export function DropdownMenu({ options, label }: DropdownMenuProps) {
         <SelectGroup>
           <SelectLabel>{label}</SelectLabel>
           {options.map((item, index) => (
-            <SelectItem value={item.option}>{item.option}</SelectItem>
+            <SelectItem key={item.option} value={item.option}>
+              {item.option}
+            </SelectItem>
           ))}
         </SelectGroup>
       </SelectContent>
