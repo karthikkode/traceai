@@ -22,13 +22,7 @@ import { IoIosArrowDropdownCircle } from "react-icons/io";
 import { useFetchUserDetails } from "@/app/hooks/useFetchUserDetails";
 
 interface SidebarFullScreenProps {
-  activeItem:
-    | "dashboard"
-    | "getstarted"
-    | "users"
-    | "analytics"
-    | "userJourneys"
-    | "settings";
+  activeItem: "dashboard" | "users" | "traces" | "settings";
 }
 
 import * as React from "react";
@@ -47,6 +41,8 @@ const DropdownMenuRadioGroupDemo = () => {
   const [position, setPosition] = React.useState("bottom");
   const { traces, projects, user, organization, loading } =
     useFetchUserDetails();
+  console.log(loading);
+  if (!loading) console.log(projects);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -95,17 +91,6 @@ export default function SidebarFullScreen({
               <DropdownMenuRadioGroupDemo />
             </div>
             <Link
-              href="/getstarted"
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-                activeItem === "getstarted"
-                  ? "bg-muted"
-                  : "text-muted-foreground hover:text-primary"
-              }`}
-            >
-              <Lightbulb className="h-4 w-4" />
-              Get Started
-            </Link>
-            <Link
               href="/dashboard"
               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
                 activeItem === "dashboard"
@@ -117,22 +102,15 @@ export default function SidebarFullScreen({
               Dashboard
             </Link>
             <Link
-              href="/userJourneys"
+              href="/traces"
               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-                activeItem === "userJourneys"
+                activeItem === "traces"
                   ? "bg-muted"
                   : "text-muted-foreground hover:text-primary"
               }`}
             >
               <Users className="h-4 w-4" />
-              Users Journeys
-            </Link>
-            <Link
-              href="#"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-            >
-              <LineChart className="h-4 w-4" />
-              Analytics
+              Traces
             </Link>
             <Link
               href="/settings"

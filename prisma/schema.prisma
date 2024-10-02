@@ -26,14 +26,22 @@ model User {
 
 model Trace {
   id Int @id @default(autoincrement())
-  metric String?
+  trackerId String?
   name      String
   projectId Int
   project   Project  @relation(fields: [projectId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   accesses  UserAccess[]
+  trackers   Tracker[]
+}
 
+model Tracker {
+  id Int @id @default(autoincrement())
+  step Int
+  traceId Int
+  trace   Trace   @relation(fields: [traceId], references: [id], onDelete: Cascade)
+  @@unique([step, traceId])
 }
 
 model Project {
@@ -60,6 +68,19 @@ model UserAccess {
   trace     Trace   @relation(fields: [traceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, traceId]) // Ensure a user can have only one access type per trace
+}
+
+model eventData {
+  id        Int      @id @default(autoincrement())
+  sessionId String
+  tagName   String
+  elementId String?
+  classList String?
+  innerText String?
+  href      String?
+  outerHTML String?
+  timestamp DateTime @default(now())
+  url       String
 }
 
 enum AccessType {

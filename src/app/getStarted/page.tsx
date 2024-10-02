@@ -1,23 +1,3 @@
-// "use client";
-// import { redirect } from "next/navigation";
-// import { auth } from "@/lib/auth";
-// import React from "react";
-// import Logout from "@/components/LogoutButton";
-// import { useSession } from "next-auth/react";
-// import { useFetchUserDetails } from "@/app/hooks/useFetchUserDetails";
-// export default function () {
-//   const { data: session, status } = useSession();
-//   if (status === "unauthenticated") redirect("/");
-
-//   const { userDetails, loading } = useFetchUserDetails();
-
-//   return (
-//     <div>
-//       {session?.user?.email}
-//       <Logout />
-//     </div>
-//   );
-// }
 "use client";
 import { Button } from "@/components/ui/button";
 // import SidebarMobile from "@/components/SidebarMobile";
@@ -45,7 +25,7 @@ export default function () {
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <SidebarFullScreen activeItem="getstarted" />
+      <SidebarFullScreen activeItem="traces" />
       <div className="flex flex-col">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
           {/* <SidebarMobile /> */}

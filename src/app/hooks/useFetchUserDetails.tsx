@@ -35,13 +35,13 @@ export const useFetchUserDetails = () => {
         setProjects(projects);
         setOrganization(organization);
         setUser(user);
+        setLoading(false);
       }
     };
 
     setLoading(true);
     if (status !== "loading") {
       fetchData();
-      setLoading(false);
     }
   }, [session, status]);
 
