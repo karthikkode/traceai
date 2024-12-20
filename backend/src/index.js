@@ -8,9 +8,6 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const cors = require("cors");
-app.use(cors({ origin: "https://your-frontend-url.onrender.com" }));
-
 
 // Routes
 app.use("/visitors", visitorRoutes);
