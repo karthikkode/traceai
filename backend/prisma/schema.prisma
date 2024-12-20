@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Visitor {
+  id        String   @id @default(uuid()) // Unique identifier
+  ipAddress String   // Visitor's IP address
+  location  String?  // Location of the visitor (optional)
+  createdAt DateTime @default(now())      // Timestamp when the visitor was created
+  updatedAt DateTime @updatedAt           // Timestamp when the visitor was last updated
+
+  // Relation to the Event model
+  events    Event[]
+}
+
+model Event {
+  id             String   @id @default(uuid()) // Unique identifier
+  visitorId         String   // Foreign key to Visitor model
+  visitor           Visitor     @relation(fields: [visitorId], references: [id])
+  eventType      String   // Type of event (e.g., click, page view, etc.)
+  elementId      String?  // Optional ID of the element involved
+  url            String   // URL where the event occurred
+  deviceType     String   // Device type (e.g., desktop, mobile, tablet)
+  timestamp      DateTime // Time the event occurred
+  additionalData Json?    // Additional data in JSON format
+  browser        String   // Browser information
+  createdAt      DateTime @default(now())      // Timestamp when the event was created
+  updatedAt      DateTime @updatedAt           // Timestamp when the event was last updated
+}
+
+model Trace {
+  id        String   @id @default(uuid()) // Unique identifier
+  name      String   // Name of the trace
+  stepCount Int      // Total steps in the trace
+  createdAt DateTime @default(now())      // Timestamp when the trace was created
+  updatedAt DateTime @updatedAt           // Timestamp when the trace was last updated
+
+  // Relation to Steps
+  steps Step[]
+}
+
+model Step {
+  id           String   @id @default(uuid()) // Unique identifier
+  traceId      String
+  trace        Trace    @relation(fields: [traceId], references: [id])
+  stepNumber   Int      // Order of the step in the trace
+  condition    String   // Condition for this step
+  isTimeBound  Boolean  // Whether the step is time-bound
+  subStepCount Int      // Total sub-steps in this step
+
+  // Relation to SubSteps
+  subSteps SubStep[]
+}
+
+model SubStep {
+  id            String   @id @default(uuid()) // Unique identifier
+  stepId        String
+  step          Step     @relation(fields: [stepId], references: [id])
+  subStepNumber Int      // Order of the sub-step in the step
+  event         String   // Event type for this sub-step
+  eventFilter   String   // Filter for events
+  condition     String   // Condition for this sub-step
+  isTimeBound   Boolean  // Whether the sub-step is time-bound
+  regex         String?  // Regex for filtering
+  regexFilter   String?  // Regex-based filter
+}
