@@ -1,16 +1,14 @@
-import path from "path"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  server: {
-    port: process.env.PORT ? parseInt(process.env.PORT) : 4173, // Use the PORT environment variable or fallback to 4173
-    host: true, // Expose the server to external access
-  },
   plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+  server: {
+    port: 8080, // Default port for Render
+    host: "0.0.0.0", // Allow access from all network interfaces
   },
-})
+  preview: {
+    port: 8080, // For production preview
+    host: "0.0.0.0",
+  },
+});
