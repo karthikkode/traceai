@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
 });
 
 // Update an existing trace
-router.put("/:id", async (req, res) => {
+router.post("/:id", async (req, res) => {
   const { id } = req.params;
   const { name, data } = req.body;
 
