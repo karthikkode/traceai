@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/select";
 import { CircleMinus } from "lucide-react";
 import TopBar from "@/components/TopBar";
-import { useAuth } from "@/hooks/useAuth";
+// import { useAuth } from "@/hooks/useAuth";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+// const backendUrl = import.meta.env.VITE_BACKEND_URL;
 // const { user, loading, organization } = useAuth();
 
 interface Condition {
@@ -56,7 +56,7 @@ function TraceBuilder() {
       ],
     },
   ]);
-  const [trace, setTrace] = useState<any>(null);
+  // const [trace, setTrace] = useState<any>(null);
   const [traceName, setTraceName] = useState<string>("New Trace");
   const [nextStepId, setNextStepId] = useState(2);
   const [nextGroupId, setNextGroupId] = useState(2);
@@ -234,24 +234,24 @@ function TraceBuilder() {
     setIsChanged(true);
   };
 
-  const saveTrace = async (traceId: string, updatedTrace: any) => {
-    try {
-      const response = await axios.put(
-        `${backendUrl}/traces/${traceId}`,
-        updatedTrace,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("Trace updated successfully:", response.data);
-      alert("Trace updated successfully!");
-    } catch (error) {
-      console.error("Error updating trace:", error);
-      alert("Failed to update trace. Please try again.");
-    }
-  };
+  // const saveTrace = async (traceId: string, updatedTrace: any) => {
+  //   try {
+  //     const response = await axios.put(
+  //       `${backendUrl}/traces/${traceId}`,
+  //       updatedTrace,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+  //     console.log("Trace updated successfully:", response.data);
+  //     alert("Trace updated successfully!");
+  //   } catch (error) {
+  //     console.error("Error updating trace:", error);
+  //     alert("Failed to update trace. Please try again.");
+  //   }
+  // };
 
   // useEffect(() => {
   //   const newTrace: any = {
