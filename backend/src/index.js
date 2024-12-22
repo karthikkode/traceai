@@ -1,17 +1,29 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors"); // Import CORS middleware
 const visitorRoutes = require("./routes/visitors");
 const eventRoutes = require("./routes/events");
+const traceRoutes = require("./routes/traces");
+const userRoutes = require("./routes/user");
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
+// Enable CORS with specific options
+const corsOptions = {
+  origin: ["http://localhost:8080"], // Add your frontend origin
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+};
+app.use(cors(corsOptions)); // Apply CORS middleware with options
 
 // Routes
 app.use("/visitors", visitorRoutes);
 app.use("/events", eventRoutes);
+app.use("/traces", traceRoutes);
+app.use("/user", userRoutes);
 
 // Test Route
 app.get("/", (req, res) => {

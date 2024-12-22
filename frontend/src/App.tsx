@@ -14,7 +14,7 @@ function App() {
         <Route path="/home" element={<ProtectedRoute>
               <Home />
             </ProtectedRoute>} />
-        <Route path='/manageTrace' element={<ProtectedRoute>
+        <Route path='/createTrace' element={<ProtectedRoute>
           <TraceBuilder />
         </ProtectedRoute>} />
       </Routes>

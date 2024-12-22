@@ -6,13 +6,14 @@ const router = express.Router();
 
 // Create trace
 router.post("/", async (req, res) => {
-    const { name, data } = req.body;
+    const { name, data, organizationId } = req.body;
   
     try {
       const trace = await prisma.trace.create({
         data: {
           name,
-          data
+          data,
+          organizationId
         },
       });
       res.status(201).json(trace);
@@ -34,7 +35,7 @@ router.get("/", async (req, res) => {
 });
 
 // Update an existing trace
-router.post("/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { name, data } = req.body;
 

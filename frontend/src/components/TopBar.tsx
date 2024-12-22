@@ -21,7 +21,7 @@ const TopBar = () => {
           <MenubarTrigger className="cursor-pointer">Traces</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>View Traces</MenubarItem>
-            <MenubarItem onClick={()=>navigate("/manageTrace")}>Manage Traces</MenubarItem>
+            <MenubarItem onClick={()=>navigate("/createTrace")}>Create Trace</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
