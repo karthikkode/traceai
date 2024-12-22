@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-// import axios from "axios";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,10 +11,7 @@ import {
 } from "@/components/ui/select";
 import { CircleMinus } from "lucide-react";
 import TopBar from "@/components/TopBar";
-// import { useAuth } from "@/hooks/useAuth";
-
-// const backendUrl = import.meta.env.VITE_BACKEND_URL;
-// const { user, loading, organization } = useAuth();
+import { useAuth } from "@/hooks/useAuth";
 
 interface Condition {
   id: number;
@@ -56,12 +53,14 @@ function TraceBuilder() {
       ],
     },
   ]);
-  // const [trace, setTrace] = useState<any>(null);
+  const [trace, setTrace] = useState<any>(null);
   const [traceName, setTraceName] = useState<string>("New Trace");
   const [nextStepId, setNextStepId] = useState(2);
   const [nextGroupId, setNextGroupId] = useState(2);
   const [nextConditionId, setNextConditionId] = useState(2);
   const [isChanged, setIsChanged] = useState<boolean>(false);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const { organization } = useAuth();
 
   // Add Condition
   const addCondition = (stepId: number, groupId: number) => {
@@ -234,41 +233,34 @@ function TraceBuilder() {
     setIsChanged(true);
   };
 
-  // const saveTrace = async (traceId: string, updatedTrace: any) => {
-  //   try {
-  //     const response = await axios.put(
-  //       `${backendUrl}/traces/${traceId}`,
-  //       updatedTrace,
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     console.log("Trace updated successfully:", response.data);
-  //     alert("Trace updated successfully!");
-  //   } catch (error) {
-  //     console.error("Error updating trace:", error);
-  //     alert("Failed to update trace. Please try again.");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const newTrace: any = {
-  //     name: "",
-  //     data: {},
-  //     organizationId: "",
-  //   };
-  //   newTrace.name = traceName;
-  //   newTrace.data.steps = steps;
-  //   newTrace.organizationId = organization?.id;
-  //   setTrace(newTrace);
-  //   console.log(steps);
-  // }, [steps, traceName, organization]);
+  const saveTrace = async () => {
+    try {
+      const response = await axios.post(`${backendUrl}/traces/`, trace, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setIsChanged(false);
+      console.log("Trace created successfully:", response.data);
+    } catch (error: any) {
+      console.error(
+        "Error creating trace:",
+        error.response?.data || error.message
+      );
+    }
+  };
 
   useEffect(() => {
-    console.log("Updated Steps State: ", JSON.stringify(steps, null, 2));
-  }, [steps]);
+    const newTrace: any = {
+      name: "",
+      data: {},
+      organizationId: "",
+    };
+    newTrace.name = traceName;
+    newTrace.data.steps = steps;
+    newTrace.organizationId = organization?.id;
+    setTrace(newTrace);
+  }, [steps, traceName, organization]);
 
   return (
     <>
@@ -286,7 +278,11 @@ function TraceBuilder() {
           />
         </div>
         <div className="flex justify-end">
-          {isChanged && <Button size="sm">Save Changes</Button>}
+          {isChanged && (
+            <Button size="sm" onClick={saveTrace}>
+              Save Changes
+            </Button>
+          )}
         </div>
       </div>
       <div className="p-4 space-y-6">
