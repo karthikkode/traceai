@@ -1,26 +1,44 @@
-function Trace() {
+import { Trash2, ExternalLink, Edit3, Eye } from "lucide-react";
+
+const Trace = () => {
+  const trace_name = "Payment Trace";
+  const trace_description = "This trace shows the user journey of payments"; //add this in backend
+  const trace_view_link = ""; //add this in frontend
+  const trace_delete_link_api = ""; //add this in backend
+  const trace_edit_link = ""; //add this in frontend
+  const trace_data_view_link = ""; //add this in frontend
+
   return (
-    <div className="border rounded-lg shadow-md p-4 bg-foreground text-background max-w-sm w-1/3">
-      <div className="flex flex-col justify-center text-center">
-        <h2 className="text-lg font-bold mb-2 text-secondary">Trace Name</h2>
-        <p className="text-sm text-secondary">Created At: 2024-12-22</p>
-        <p className="text-sm text-secondary">Last Updated: 2024-12-23</p>
-        <p className="text-sm text-secondary">Steps: 5</p>
-        <p className="text-sm text-secondary mb-3">Organization: TraceAI Inc</p>
+    <div className="flex flex-col border rounded-xl shadow-md p-4 max-w-lg w-96 h-40 bg-[#E6F0FA]">
+      {/* Header Section */}
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-base font-medium font-bold text-gray-800">
+          Payment Trace
+        </h2>
+        <ExternalLink className="w-5 h-5 text-gray-500 ml-2 cursor-pointer" />
       </div>
-      <div className="flex gap-2 justify-center">
-        <button className="bg-blue-500 text-white px-3 py-1 rounded-lg">
-          Edit
-        </button>
-        <button className="bg-green-500 text-white px-3 py-1 rounded-lg">
-          View
-        </button>
-        <button className="bg-red-500 text-white px-3 py-1 rounded-lg">
-          Delete
+
+      {/* Description Section */}
+      <p className="text-sm text-gray-600 mb-auto">
+        This trace shows the user journey of payments
+      </p>
+
+      {/* Footer Section */}
+      <div className="flex justify-between items-center">
+        <div className="flex space-x-4">
+          <button className="text-red-500 hover:text-red-700">
+            <Trash2 className="w-5 h-5" />
+          </button>
+          <button className="text-blue-500 hover:text-blue-700">
+            <Edit3 className="w-5 h-5" />
+          </button>
+        </div>
+        <button className="text-gray-500 hover:text-gray-700">
+          <Eye className="w-5 h-5" />
         </button>
       </div>
     </div>
   );
-}
+};
 
 export default Trace;

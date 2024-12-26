@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,27 +33,9 @@ interface Step {
   groups: StepGroup[];
 }
 
-function TraceBuilder() {
-  const [steps, setSteps] = useState<Step[]>([
-    {
-      id: 1,
-      name: "New Step",
-      groups: [
-        {
-          id: 1,
-          conditions: [
-            {
-              id: 1,
-              metricName: "",
-              eventType: "",
-              regexFilter: "",
-              value: "",
-            },
-          ],
-        },
-      ],
-    },
-  ]);
+function TraceEditPage() {
+  const [steps, setSteps] = useState<Step[]>([]);
+  const { traceId } = useParams<{ traceId: string }>();
   const [trace, setTrace] = useState<any>(null);
   const [traceName, setTraceName] = useState<string>("New Trace");
   const [nextStepId, setNextStepId] = useState(2);
@@ -60,7 +43,26 @@ function TraceBuilder() {
   const [nextConditionId, setNextConditionId] = useState(2);
   const [isChanged, setIsChanged] = useState<boolean>(false);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [_loading, setLoading] = useState<boolean>(true);
 
+  console.log("gio");
+  useEffect(() => {
+    const fetchTrace = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${backendUrl}/traces/${traceId}`);
+        setSteps(response.data.data.steps);
+        setTraceName(response.data.name);
+        console.log(steps);
+      } catch (error) {
+        console.error("Error fetching trace:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrace();
+  }, [traceId]);
   // Add Condition
   const addCondition = (stepId: number, groupId: number) => {
     setSteps((prev) =>
@@ -448,4 +450,4 @@ function TraceBuilder() {
   );
 }
 
-export default TraceBuilder;
+export default TraceEditPage;

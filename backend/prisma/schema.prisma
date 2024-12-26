@@ -43,26 +43,8 @@ model Event {
 model Trace {
   id             String         @id @default(uuid()) // Unique identifier
   name           String         // Name of the trace
+  description    String?
   createdAt      DateTime       @default(now())      // Timestamp when the trace was created
   updatedAt      DateTime       @updatedAt           // Timestamp when the trace was last updated
   data           Json
-  organizationId String?
-  organization   Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-}
-
-model Organization {
-  id        String      @id @default(uuid())
-  name      String
-  users     CustomUser[]
-  traces    Trace[]      // Added reverse relation to Trace model
-}
-
-model CustomUser {
-  id             String        @id @default(uuid()) @map("id")
-  firstName      String?       @map("first_name")
-  lastName       String?       @map("last_name")
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  @@map("public.users") // Maps this model to the `public.users` table
 }
