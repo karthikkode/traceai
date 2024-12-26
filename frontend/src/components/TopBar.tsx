@@ -1,7 +1,12 @@
-import { Menubar, MenubarMenu, MenubarTrigger, MenubarContent, MenubarItem } from "@/components/ui/menubar";
+import {
+  Menubar,
+  MenubarMenu,
+  MenubarTrigger,
+  MenubarContent,
+  MenubarItem,
+} from "@/components/ui/menubar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -18,11 +23,12 @@ const TopBar = () => {
           <MenubarTrigger className="cursor-pointer">Dashboard</MenubarTrigger>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger className="cursor-pointer">Traces</MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem>View Traces</MenubarItem>
-            <MenubarItem onClick={()=>navigate("/createTrace")}>Create Trace</MenubarItem>
-          </MenubarContent>
+          <MenubarTrigger
+            onClick={() => navigate("/alltraces")}
+            className="cursor-pointer"
+          >
+            Traces
+          </MenubarTrigger>
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger className="cursor-pointer">Forms</MenubarTrigger>
@@ -39,7 +45,10 @@ const TopBar = () => {
         </MenubarMenu>
       </Menubar>
 
-      <Button variant="ghost" className="h-10 w-10 rounded-full bg-gray-600"></Button>
+      <Button
+        variant="ghost"
+        className="h-10 w-10 rounded-full bg-gray-600"
+      ></Button>
     </div>
   );
 };

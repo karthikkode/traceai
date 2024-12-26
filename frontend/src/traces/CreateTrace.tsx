@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { CircleMinus } from "lucide-react";
 import TopBar from "@/components/TopBar";
-import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface Condition {
   id: number;
@@ -33,6 +33,7 @@ interface Step {
 }
 
 function TraceBuilder() {
+  const navigate = useNavigate();
   const [steps, setSteps] = useState<Step[]>([
     {
       id: 1,
@@ -240,6 +241,7 @@ function TraceBuilder() {
         },
       });
       setIsChanged(false);
+
       console.log("Trace created successfully:", response.data);
     } catch (error: any) {
       console.error(
@@ -277,7 +279,7 @@ function TraceBuilder() {
         <div className="flex justify-end">
           {isChanged && (
             <Button size="sm" onClick={saveTrace}>
-              Save Changes
+              Save Changes ss
             </Button>
           )}
         </div>

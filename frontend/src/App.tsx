@@ -4,8 +4,8 @@ import Hero from "./components/Hero";
 import Home from "./components/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TraceBuilder from "./traces/CreateTrace";
-import Trace from "./components/Trace";
 import TraceEditPage from "./components/TraceEdit";
+import AllTraces from "./traces/AllTraces";
 
 function App() {
   return (
@@ -29,7 +29,7 @@ function App() {
           }
         />
         <Route path="/trace/:traceId" element={<TraceEditPage />} />
-        <Route path="/test" element={<Trace />} />
+        <Route path="/alltraces" element={<AllTraces />} />
       </Routes>
     </Router>
   );

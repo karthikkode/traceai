@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { CircleMinus } from "lucide-react";
 import TopBar from "@/components/TopBar";
-import { useAuth } from "@/hooks/useAuth";
 
 interface Condition {
   id: number;
@@ -45,15 +44,14 @@ function TraceEditPage() {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [_loading, setLoading] = useState<boolean>(true);
 
-  console.log("gio");
   useEffect(() => {
     const fetchTrace = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${backendUrl}/traces/${traceId}`);
+        console.log(response.data.data.steps);
         setSteps(response.data.data.steps);
         setTraceName(response.data.name);
-        console.log(steps);
       } catch (error) {
         console.error("Error fetching trace:", error);
       } finally {
