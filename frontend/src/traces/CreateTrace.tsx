@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { CircleMinus } from "lucide-react";
 import TopBar from "@/components/TopBar";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 interface Condition {
   id: number;
@@ -33,7 +33,7 @@ interface Step {
 }
 
 function TraceBuilder() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [steps, setSteps] = useState<Step[]>([
     {
       id: 1,
