@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { CircleMinus } from "lucide-react";
 import TopBar from "@/components/TopBar";
+import { useNavigate } from "react-router-dom";
 
 interface Condition {
   id: number;
@@ -33,10 +34,12 @@ interface Step {
 }
 
 function TraceEditPage() {
+  const navigate = useNavigate();
   const [steps, setSteps] = useState<Step[]>([]);
   const { traceId } = useParams<{ traceId: string }>();
   const [trace, setTrace] = useState<any>(null);
-  const [traceName, setTraceName] = useState<string>("New Trace");
+  const [traceName, setTraceName] = useState<string>("");
+  const [traceDescription, setTraceDescription] = useState<string>("");
   const [nextStepId, setNextStepId] = useState(2);
   const [nextGroupId, setNextGroupId] = useState(2);
   const [nextConditionId, setNextConditionId] = useState(2);
@@ -49,9 +52,26 @@ function TraceEditPage() {
       try {
         setLoading(true);
         const response = await axios.get(`${backendUrl}/traces/${traceId}`);
-        console.log(response.data.data.steps);
-        setSteps(response.data.data.steps);
+        console.log("API Response Steps:", response.data.data.steps);
+
+        // Parse the response to ensure correct structure
+        const updatedSteps = response.data.data.steps.map((step: Step) => ({
+          ...step,
+          groups: step.groups.map((group: StepGroup) => ({
+            ...group,
+            conditions: group.conditions.map((condition: Condition) => ({
+              ...condition,
+              value: condition.value || "",
+              eventType: condition.eventType || "",
+              metricName: condition.metricName || "",
+              regexFilter: condition.regexFilter || "",
+            })),
+          })),
+        }));
+
+        setSteps(updatedSteps);
         setTraceName(response.data.name);
+        setTraceDescription(response.data.description || "");
       } catch (error) {
         console.error("Error fetching trace:", error);
       } finally {
@@ -234,13 +254,18 @@ function TraceEditPage() {
 
   const saveTrace = async () => {
     try {
-      const response = await axios.post(`${backendUrl}/traces/`, trace, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.put(
+        `${backendUrl}/traces/${traceId}`,
+        trace,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       setIsChanged(false);
       console.log("Trace created successfully:", response.data);
+      navigate("/alltraces");
     } catch (error: any) {
       console.error(
         "Error creating trace:",
@@ -256,6 +281,7 @@ function TraceEditPage() {
     };
     newTrace.name = traceName;
     newTrace.data.steps = steps;
+    newTrace.description = traceDescription;
     setTrace(newTrace);
   }, [steps, traceName]);
 
@@ -263,16 +289,29 @@ function TraceEditPage() {
     <>
       <TopBar />
       <div className="flex justify-between items-center mt-4 mx-4">
-        <div className="w-1/3 flex justify-start">
-          <Input
-            type="text"
-            placeholder="New Trace"
-            value={traceName}
-            onChange={(e) => {
-              setTraceName(e.target.value);
-              setIsChanged(true);
-            }}
-          />
+        <div className="flex justify-start gap-4">
+          <div className="w-1/3">
+            <Input
+              type="text"
+              placeholder="Name"
+              value={traceName}
+              onChange={(e) => {
+                setTraceName(e.target.value);
+                setIsChanged(true);
+              }}
+            />
+          </div>
+          <div className="w-2/3">
+            <Input
+              type="text"
+              placeholder="Description"
+              value={traceDescription}
+              onChange={(e) => {
+                setTraceDescription(e.target.value);
+                setIsChanged(true);
+              }}
+            />
+          </div>
         </div>
         <div className="flex justify-end">
           {isChanged && (
@@ -331,6 +370,7 @@ function TraceEditPage() {
                     className="flex space-x-2 items-center"
                   >
                     <Select
+                      value={condition.metricName}
                       onValueChange={(value) =>
                         updateCondition(
                           step.id,
@@ -352,6 +392,7 @@ function TraceEditPage() {
                     </Select>
 
                     <Select
+                      value={condition.eventType}
                       onValueChange={(value) =>
                         updateCondition(
                           step.id,
@@ -373,6 +414,7 @@ function TraceEditPage() {
                     </Select>
 
                     <Select
+                      value={condition.regexFilter}
                       onValueChange={(value) =>
                         updateCondition(
                           step.id,
@@ -394,7 +436,6 @@ function TraceEditPage() {
                     </Select>
 
                     <Input
-                      placeholder="Condition"
                       value={condition.value}
                       onChange={(e) =>
                         updateCondition(
@@ -406,6 +447,7 @@ function TraceEditPage() {
                         )
                       }
                       className="w-60"
+                      placeholder="Condition"
                     />
 
                     <Button

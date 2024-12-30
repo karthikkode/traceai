@@ -72,7 +72,7 @@ const AllTraces = () => {
         )}
       </div>
       <div
-        onClick={() => navigate("/trace/createTrace")}
+        onClick={() => navigate("/createTrace")}
         className="flex justify-center items-center mt-4"
       >
         <Button>

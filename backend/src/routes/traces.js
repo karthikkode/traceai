@@ -56,14 +56,16 @@ router.get("/:id", async (req, res) => {
 // Update an existing trace
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, data } = req.body;
-
+  const { name, description, data } = req.body;
+  console.log(id)
   try {
     const trace = await prisma.trace.update({
-      where: { id: parseInt(id, 10) },
-      data: { name, data },
+      where: { id },
+      data: { name, data, description },
     });
     res.status(200).json(trace);
+    console.log(id)
+
   } catch (error) {
     console.error("Error updating trace:", error);
     if (error.code === "P2025") {

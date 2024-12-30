@@ -14,28 +14,18 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Visitor {
-  id        String   @id @default(uuid()) // Unique identifier
-  ipAddress String   // Visitor's IP address
-  location  String?  // Location of the visitor (optional)
-  createdAt DateTime @default(now())      // Timestamp when the visitor was created
-  updatedAt DateTime @updatedAt           // Timestamp when the visitor was last updated
-
-  // Relation to the Event model
-  events    Event[]
-}
-
 model Event {
   id             String   @id @default(uuid()) // Unique identifier
-  visitorId      String   // Foreign key to Visitor model
-  visitor        Visitor  @relation(fields: [visitorId], references: [id])
-  eventType      String   // Type of event (e.g., click, page view, etc.)
+  ipAddress      String   // Visitor's IP address
+  location  String?  // Location of the visitor (optional)
   elementId      String?  // Optional ID of the element involved
+  elementContent String?   // Content of the element tracked
+  traceEventName String?  // trace event name (name of the event in the tag)
+  traceEvent     String?  // trace event type (eg: trace-click, trace-hover etc)
   url            String   // URL where the event occurred
   deviceType     String   // Device type (e.g., desktop, mobile, tablet)
-  timestamp      DateTime // Time the event occurred
-  additionalData Json?    // Additional data in JSON format
   browser        String   // Browser information
+  additionalData Json?    // Additional data in JSON format
   createdAt      DateTime @default(now())      // Timestamp when the event was created
   updatedAt      DateTime @updatedAt           // Timestamp when the event was last updated
 }

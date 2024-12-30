@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { CircleMinus } from "lucide-react";
 import TopBar from "@/components/TopBar";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Condition {
   id: number;
@@ -33,7 +33,7 @@ interface Step {
 }
 
 function TraceBuilder() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [steps, setSteps] = useState<Step[]>([
     {
       id: 1,
@@ -55,7 +55,8 @@ function TraceBuilder() {
     },
   ]);
   const [trace, setTrace] = useState<any>(null);
-  const [traceName, setTraceName] = useState<string>("New Trace");
+  const [traceName, setTraceName] = useState<string>("");
+  const [traceDescription, setTraceDescription] = useState<string>("");
   const [nextStepId, setNextStepId] = useState(2);
   const [nextGroupId, setNextGroupId] = useState(2);
   const [nextConditionId, setNextConditionId] = useState(2);
@@ -241,7 +242,7 @@ function TraceBuilder() {
         },
       });
       setIsChanged(false);
-
+      navigate("/alltraces");
       console.log("Trace created successfully:", response.data);
     } catch (error: any) {
       console.error(
@@ -258,6 +259,7 @@ function TraceBuilder() {
     };
     newTrace.name = traceName;
     newTrace.data.steps = steps;
+    newTrace.description = traceDescription;
     setTrace(newTrace);
   }, [steps, traceName]);
 
@@ -265,21 +267,34 @@ function TraceBuilder() {
     <>
       <TopBar />
       <div className="flex justify-between items-center mt-4 mx-4">
-        <div className="w-1/3 flex justify-start">
-          <Input
-            type="text"
-            placeholder="New Trace"
-            value={traceName}
-            onChange={(e) => {
-              setTraceName(e.target.value);
-              setIsChanged(true);
-            }}
-          />
+        <div className="flex justify-start gap-4">
+          <div className="w-1/3">
+            <Input
+              type="text"
+              placeholder="Name"
+              value={traceName}
+              onChange={(e) => {
+                setTraceName(e.target.value);
+                setIsChanged(true);
+              }}
+            />
+          </div>
+          <div className="w-2/3">
+            <Input
+              type="text"
+              placeholder="Description"
+              value={traceDescription}
+              onChange={(e) => {
+                setTraceDescription(e.target.value);
+                setIsChanged(true);
+              }}
+            />
+          </div>
         </div>
         <div className="flex justify-end">
           {isChanged && (
             <Button size="sm" onClick={saveTrace}>
-              Save Changes ss
+              Save Changes
             </Button>
           )}
         </div>
