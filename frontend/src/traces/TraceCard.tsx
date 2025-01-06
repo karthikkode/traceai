@@ -1,4 +1,5 @@
 import { Trash2, ExternalLink, Edit3, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface TraceProps {
   traceId: string;
@@ -7,19 +8,22 @@ interface TraceProps {
 }
 
 const TraceCard: React.FC<TraceProps> = ({ traceId, name, description }) => {
+  const navigate = useNavigate();
   const handleDelete = () => {
     // Add delete logic here, for example, calling an API to delete the trace
     console.log(`Delete trace with ID: ${traceId}`);
   };
 
   const handleEdit = () => {
-    // Add edit logic here, for example, redirecting to an edit page
-    console.log(`Edit trace with ID: ${traceId}`);
+    navigate(`/trace/${traceId}`);
   };
 
   const handleView = () => {
-    // Add view logic here, for example, redirecting to a detailed view page
-    console.log(`View trace with ID: ${traceId}`);
+    navigate(`/trace/${traceId}`);
+  };
+
+  const handleViewFunnel = () => {
+    navigate(`/trace/funnel/viewTrace/${traceId}`);
   };
 
   return (
@@ -31,7 +35,7 @@ const TraceCard: React.FC<TraceProps> = ({ traceId, name, description }) => {
         </h2>
         <ExternalLink
           className="w-5 h-5 text-gray-500 ml-2 cursor-pointer"
-          onClick={handleView}
+          onClick={handleViewFunnel}
         />
       </div>
 

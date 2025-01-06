@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import TraceCard from "@/components/TraceCard"; // Assuming Trace component exists for individual traces
+import TraceCard from "@/traces/TraceCard"; // Assuming Trace component exists for individual traces
 import TopBar from "@/components/TopBar";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -56,10 +56,7 @@ const AllTraces = () => {
         ) : (
           <div className="flex flex-wrap gap-4">
             {traces.map((trace) => (
-              <div
-                className="cursor-pointer"
-                onClick={() => navigate(`/trace/${trace.id}`)}
-              >
+              <div className="cursor-pointer">
                 <TraceCard
                   key={trace.id}
                   traceId={trace.id}

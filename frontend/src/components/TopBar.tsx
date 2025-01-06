@@ -38,7 +38,12 @@ const TopBar = () => {
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger className="cursor-pointer">Setup</MenubarTrigger>
+          <MenubarTrigger
+            className="cursor-pointer"
+            onClick={() => navigate("/setup")}
+          >
+            Setup
+          </MenubarTrigger>
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger className="cursor-pointer">Settings</MenubarTrigger>

@@ -1,5 +1,7 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const {  buildQuery } = require("../utilities/buildQuery");
+const JSONbig = require('json-bigint');
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -76,7 +78,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-//Delete a trace
+// Delete a trace
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -103,5 +105,25 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Get query of a trace
+router.post("/getTraceData/funnel", async (req, res) => {
+  try {
+    const { steps } = req.body;
+    const sql = buildQuery(steps)
+
+    console.log(sql)
+    const result = await prisma.$queryRawUnsafe(sql);
+    // Serialize result to handle BigInt values
+    const serializedResult = JSONbig.stringify({ data: result });
+
+    res.status(200).send(serializedResult);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Failed to fetch data" });
+  }finally {
+    await prisma.$disconnect();
+  }
+
+});
 
 module.exports = router;

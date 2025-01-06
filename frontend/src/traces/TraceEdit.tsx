@@ -52,7 +52,6 @@ function TraceEditPage() {
       try {
         setLoading(true);
         const response = await axios.get(`${backendUrl}/traces/${traceId}`);
-        console.log("API Response Steps:", response.data.data.steps);
 
         // Parse the response to ensure correct structure
         const updatedSteps = response.data.data.steps.map((step: Step) => ({
@@ -72,6 +71,32 @@ function TraceEditPage() {
         setSteps(updatedSteps);
         setTraceName(response.data.name);
         setTraceDescription(response.data.description || "");
+
+        // Dynamically set the nextStepId based on the max step ID
+        const maxStepId = Math.max(
+          ...updatedSteps.map((step: any) => step.id),
+          0
+        );
+        setNextStepId(maxStepId + 1);
+
+        // Dynamically set the nextGroupId and nextConditionId similarly if needed
+        const maxGroupId = Math.max(
+          ...updatedSteps.flatMap((step: any) =>
+            step.groups.map((group: any) => group.id)
+          ),
+          0
+        );
+        setNextGroupId(maxGroupId + 1);
+
+        const maxConditionId = Math.max(
+          ...updatedSteps.flatMap((step: any) =>
+            step.groups.flatMap((group: any) =>
+              group.conditions.map((condition: any) => condition.id)
+            )
+          ),
+          0
+        );
+        setNextConditionId(maxConditionId + 1);
       } catch (error) {
         console.error("Error fetching trace:", error);
       } finally {
@@ -277,13 +302,14 @@ function TraceEditPage() {
   useEffect(() => {
     const newTrace: any = {
       name: "",
+      description: "",
       data: {},
     };
     newTrace.name = traceName;
     newTrace.data.steps = steps;
     newTrace.description = traceDescription;
     setTrace(newTrace);
-  }, [steps, traceName]);
+  }, [steps, traceName, traceDescription, steps]);
 
   return (
     <>
@@ -335,7 +361,11 @@ function TraceEditPage() {
                   value={step.name}
                   placeholder="Step Name"
                   onChange={(e) =>
-                    updateCondition(step.id, 0, 0, "value", e.target.value)
+                    setSteps((prev) =>
+                      prev.map((s) =>
+                        s.id === step.id ? { ...s, name: e.target.value } : s
+                      )
+                    )
                   }
                   className="w-60"
                 />

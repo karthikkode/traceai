@@ -4,8 +4,10 @@ import Hero from "./components/Hero";
 import Home from "./components/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TraceBuilder from "./traces/CreateTrace";
-import TraceEditPage from "./components/TraceEdit";
+import TraceEditPage from "./traces/TraceEdit";
 import AllTraces from "./traces/AllTraces";
+import Setup from "./setup/Setup";
+import TraceFunnel from "./traces/ViewTrace";
 
 function App() {
   return (
@@ -30,6 +32,11 @@ function App() {
         />
         <Route path="/trace/:traceId" element={<TraceEditPage />} />
         <Route path="/alltraces" element={<AllTraces />} />
+        <Route path="/setup" element={<Setup />} />
+        <Route
+          path="/trace/funnel/viewTrace/:traceId"
+          element={<TraceFunnel />}
+        />
       </Routes>
     </Router>
   );
