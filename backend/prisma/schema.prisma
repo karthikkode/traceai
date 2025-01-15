@@ -38,3 +38,20 @@ model Trace {
   updatedAt      DateTime       @updatedAt           // Timestamp when the trace was last updated
   data           Json
 }
+
+model PaymentUrl {
+  id        String   @id @default(uuid()) // Unique identifier
+  url       String   // URL of the payment setup
+  createdAt DateTime @default(now())      // Timestamp when the URL was created
+  updatedAt DateTime @updatedAt           // Timestamp when the URL was last updated
+}
+
+model FormFieldInteraction {
+  id             String   @id @default(uuid()) // Unique identifier
+  form_id        String   // Unique identifier for the form
+  field_name     String   // Name or ID of the field
+  field_content  String   // Content entered by the user
+  field_rank     Int      // Order of the field in the form
+  createdAt      DateTime @default(now())      // Timestamp when the field was interacted with
+  updatedAt      DateTime @updatedAt           // Timestamp when the field interaction was last updated
+}

@@ -20,7 +20,13 @@ const TopBar = () => {
 
       <Menubar>
         <MenubarMenu>
-          <MenubarTrigger className="cursor-pointer">Dashboard</MenubarTrigger>
+          <MenubarTrigger className="cursor-pointer">Payment</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem onClick={() => navigate("/payment/setup")}>
+              Setup
+            </MenubarItem>
+            <MenubarItem>Failures</MenubarItem>
+          </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger

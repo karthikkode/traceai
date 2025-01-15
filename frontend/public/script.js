@@ -1,6 +1,10 @@
 (function () {
 
-    const backendUrl = "http://localhost:3000/events/"; // Update with your backend URL
+    const backendBaseUrl = "http://localhost:3000/"
+    const backendUrl = `${backendBaseUrl}events`; // Update with your backend URL
+    const typingDelay = 1000; // Delay in ms before logging
+    let typingTimer; // Timer for tracking when the user stops typing
+    let lastLoggedValue = ""; // To avoid logging duplicate values
   
       // Helper function to fetch the client's IP address
       const fetchIpAddress = async () => {
@@ -40,6 +44,27 @@
           console.error("Error sending event data:", error);
         }
       };
+
+      //Helper function to call the payment failure api
+      const paymentFailureApi = async () => {
+        try {
+          const response = await fetch(`${backendBaseUrl}/payment/pageVisitCount`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            }
+          });
+  
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log("Event logged successfully:", responseData);
+          } else {
+            console.error("Failed to log event:", await response.text());
+          }
+        } catch (error) {
+          console.error("Error sending event data:", error);
+        }
+      };
   
       const logPageVisit = async () => {
         const url = window.location.href;
@@ -63,6 +88,7 @@
         };
     
         sendEventData(eventData);
+        paymentFailureApi();
       };
     
       // Track URL changes
@@ -78,14 +104,79 @@
           }
         }).observe(document.body, { childList: true, subtree: true });
       };
-    
-      // Log initial page visit
-      logPageVisit();
-    
-      // Observe URL changes
-      observeURLChange();
-  
-    
-    })();
-    
-  
+
+  // Function to track search input
+  const trackSearchInput = async (searchInput, traceEventName) => {
+    try {
+      if (searchInput && searchInput !== lastLoggedValue) {
+        lastLoggedValue = searchInput; // Avoid duplicate calls
+
+        const ipAddress = await fetchIpAddress();
+        const eventData = {
+          ipAddress,
+          location: null,
+          elementId: traceEventName,
+          elementContent: searchInput,
+          traceEventName,
+          traceEvent: "trace-search",
+          url: window.location.href,
+          deviceType: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
+          browser: navigator.userAgent,
+          additionalData: {
+            eventType: "search_input",
+          },
+        };
+
+        sendEventData(eventData);
+      }
+    } catch (error) {
+      console.error("Error tracking search input:", error);
+    }
+  };
+
+  // Initialize search bar tracking
+  const initializeSearchBarTracking = () => {
+    const searchBars = document.querySelectorAll("[trace-search]");
+
+    if (searchBars.length > 0) {
+      searchBars.forEach((searchBar) => {
+        const traceEventName = searchBar.getAttribute("trace-search");
+        searchBar.addEventListener("input", (e) => {
+          clearTimeout(typingTimer); // Clear previous timer
+          const searchInput = e.target.value.trim(); // Get trimmed input value
+          typingTimer = setTimeout(() => trackSearchInput(searchInput, traceEventName), typingDelay);
+        });
+      });
+    } else {
+      console.warn("No elements with [trace-search] attribute found.");
+    }
+  };
+
+  const observeDOMChanges = () => {
+    const observer = new MutationObserver(() => {
+      initializeSearchBarTracking(); // Reinitialize search bar tracking
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  };
+
+  // Initialize tracking
+  const initializeTracking = () => {
+    // Log initial page visit
+    logPageVisit();
+
+    // Observe URL changes
+    observeURLChange();
+
+    // Track search bar input
+    initializeSearchBarTracking();
+    observeDOMChanges();
+  };
+
+  // Ensure DOM is fully loaded before initializing
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeTracking);
+  } else {
+    initializeTracking();
+  }
+})();

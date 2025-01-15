@@ -8,6 +8,7 @@ import TraceEditPage from "./traces/TraceEdit";
 import AllTraces from "./traces/AllTraces";
 import Setup from "./setup/Setup";
 import TraceFunnel from "./traces/ViewTrace";
+import PaymentSetup from "./payment/Setup";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/trace/:traceId" element={<TraceEditPage />} />
         <Route path="/alltraces" element={<AllTraces />} />
         <Route path="/setup" element={<Setup />} />
+        <Route path="/payment/setup" element={<PaymentSetup />} />
         <Route
           path="/trace/funnel/viewTrace/:traceId"
           element={<TraceFunnel />}
