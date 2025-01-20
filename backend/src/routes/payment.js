@@ -78,50 +78,67 @@ router.get("/getPaymentUrls", async (req, res) => {
   });
 
   // API to count page visits for the stored payment URL
-router.get("/pageVisitCount", async (req, res) => {
-  try {
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000); // Current time minus 1 hour
-
-    // Fetch the payment URL from the PaymentUrl table
-    const paymentUrl = await prisma.paymentUrl.findFirst();
-
-    if (!paymentUrl || !paymentUrl.url) {
-      return res.status(404).json({ error: "No payment URL found." });
+  router.get("/pageVisitCount", async (req, res) => {
+    try {
+      // Fetch the payment URL and monitoring settings from the database
+      const paymentUrl = await prisma.paymentUrl.findFirst();
+  
+      if (!paymentUrl || !paymentUrl.url) {
+        return res.status(404).json({ error: "No payment URL found." });
+      }
+  
+      const durationInMinutes = paymentUrl.duration; // Duration in minutes
+      const currentTime = new Date();
+      const windowStartTime = new Date(currentTime.getTime() - durationInMinutes * 60 * 1000);
+  
+      // Count events matching the payment URL within the duration
+      const count = await prisma.event.count({
+        where: {
+          traceEvent: "page-visit",
+          traceEventName: {
+            contains: paymentUrl.url, // Matching the URL in the traceEventName
+          },
+          createdAt: {
+            gte: windowStartTime, // Within the specified duration
+          },
+        },
+      });
+  
+      const limit = 5; // Example failure threshold
+  
+      // Check if an email was sent within the current duration window
+      if (paymentUrl.lastEmailSentAt && new Date(paymentUrl.lastEmailSentAt) >= windowStartTime) {
+        console.log("Email already sent within the current window. Skipping...");
+        return res.status(200).json({ count, message: "Email already sent in the current window." });
+      }
+  
+      // If the count exceeds the limit, send an email
+      if (count >= limit) {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: "tsaikarthik@yahoo.in", // Replace with the recipient's email
+          subject: "High Traffic Alert",
+          text: `The page "${paymentUrl.url}" has exceeded the traffic limit of ${limit} within ${durationInMinutes} minutes. Current count: ${count}`,
+        };
+  
+        await transporter.sendMail(mailOptions);
+        console.log("Email sent successfully.");
+  
+        // Update the lastEmailSentAt timestamp in the database
+        await prisma.paymentUrl.update({
+          where: { id: paymentUrl.id },
+          data: {
+            lastEmailSentAt: currentTime, // Update the last email sent time
+          },
+        });
+      }
+  
+      return res.status(200).json({ count });
+    } catch (error) {
+      console.error("Error counting page visits:", error);
+      return res.status(500).json({ error: "Failed to count page visits." });
+    } finally {
+      await prisma.$disconnect();
     }
-
-    // Run the query using Prisma
-    const count = await prisma.event.count({
-      where: {
-        traceEvent: "page-visit",
-        traceEventName: {
-          contains: paymentUrl.url, // Matching the URL in the traceEventName
-        },
-        createdAt: {
-          gte: oneHourAgo, // Within the last 1 hour
-        },
-      },
-    });
-    const limit = 1
-
-        // If the count exceeds the limit, send an email
-        if (count >= limit) {
-          const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: "tsaikarthik@yahoo.in", // Replace with the recipient's email
-            subject: "High Traffic Alert",
-            text: `The page "${paymentUrl.url}" has exceeded the traffic limit of ${limit}. Current count: ${count}`,
-          };
-    
-          await transporter.sendMail(mailOptions);
-          console.log("Email sent successfully.");
-        }
-
-    return res.status(200).json({ count });
-  } catch (error) {
-    console.error("Error counting page visits:", error);
-    return res.status(500).json({ error: "Failed to count page visits." });
-  } finally {
-    await prisma.$disconnect();
-  }
-});
+  });  
 module.exports = router;

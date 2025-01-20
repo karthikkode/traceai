@@ -16,7 +16,7 @@ function buildQuery(steps) {
   
       // Add CTE for each step
       query += `step${stepIndex + 1} AS (
-        SELECT '${stepName}' as name, COUNT(DISTINCT "ipAddress") AS value
+        SELECT '${stepName}' as name, COUNT(DISTINCT "id") AS value
         FROM "Event"
         WHERE 1=1
         AND ${stepConditions}
@@ -36,9 +36,9 @@ function buildQuery(steps) {
   }
   
   function getGroupConditions(groupConditions) {
-    let baseCondition = "((1=1)"; // Initialize the base condition
+    let baseCondition = ""; // Initialize an empty string for the condition
   
-    groupConditions.forEach((condition) => {
+    groupConditions.forEach((condition, index) => {
       if (condition.metricName === "page") {
         const regexCondition =
           condition.regexFilter === "startsWith"
@@ -47,7 +47,10 @@ function buildQuery(steps) {
             ? `%${condition.value}`
             : `%${condition.value}%`;
   
-        baseCondition += ` OR ("traceEvent" = 'trace-page-view' AND "traceEventName" LIKE '${regexCondition}'))`;
+        const conditionString = `("traceEvent" = 'page-visit' AND "traceEventName" LIKE '${regexCondition}')`;
+  
+        // Append with AND if not the first condition
+        baseCondition += index === 0 ? conditionString : ` AND ${conditionString}`;
       }
       // Add other metricName cases if needed
     });

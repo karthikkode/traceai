@@ -37,13 +37,17 @@ model Trace {
   createdAt      DateTime       @default(now())      // Timestamp when the trace was created
   updatedAt      DateTime       @updatedAt           // Timestamp when the trace was last updated
   data           Json
+  traceMetabaseCard Int?
 }
 
 model PaymentUrl {
-  id        String   @id @default(uuid()) // Unique identifier
-  url       String   // URL of the payment setup
-  createdAt DateTime @default(now())      // Timestamp when the URL was created
-  updatedAt DateTime @updatedAt           // Timestamp when the URL was last updated
+  id             String   @id @default(uuid()) // Unique identifier
+  url            String   // URL of the payment setup
+  duration       Int      @default(60)         // Duration in minutes for tracking failures
+  failureCount   Int      @default(0)          // Count of payment failures
+  lastEmailSentAt DateTime?                    // Timestamp of the last email sent
+  createdAt      DateTime @default(now())      // Timestamp when the URL was created
+  updatedAt      DateTime @updatedAt           // Timestamp when the URL was last updated
 }
 
 model FormFieldInteraction {

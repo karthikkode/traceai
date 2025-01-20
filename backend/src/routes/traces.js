@@ -2,6 +2,7 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const {  buildQuery } = require("../utilities/buildQuery");
 const JSONbig = require('json-bigint');
+const { buildMetabaseQuery } = require("../utilities/buildMetabaseQuery");
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -9,12 +10,13 @@ const router = express.Router();
 // Create trace
 router.post("/", async (req, res) => {
     const { name, data } = req.body;
-  
+    traceMetabaseCard = await buildMetabaseQuery(data.steps, name)
     try {
       const trace = await prisma.trace.create({
         data: {
           name,
-          data
+          data,
+          traceMetabaseCard
         },
       });
       res.status(201).json(trace);
@@ -38,7 +40,6 @@ router.get("/", async (req, res) => {
 // Get a specific trace by ID
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-  console.log(id)
   try {
     const trace = await prisma.trace.findUnique({
       where: { id },
@@ -58,15 +59,15 @@ router.get("/:id", async (req, res) => {
 // Update an existing trace
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, description, data } = req.body;
-  console.log(id)
+  const { name, description, data, cardID } = req.body;
+  
   try {
+    const traceMetabaseCard = await buildMetabaseQuery(data.steps, name, cardID)
     const trace = await prisma.trace.update({
       where: { id },
-      data: { name, data, description },
+      data: { name, data, description, traceMetabaseCard},
     });
     res.status(200).json(trace);
-    console.log(id)
 
   } catch (error) {
     console.error("Error updating trace:", error);
@@ -85,7 +86,7 @@ router.delete("/:id", async (req, res) => {
   try {
     // Attempt to delete the trace
     const deletedTrace = await prisma.trace.delete({
-      where: { id: parseInt(id, 10) }, // Ensure `id` is a number
+      where: { id }
     });
 
     res.status(200).json({
@@ -111,7 +112,7 @@ router.post("/getTraceData/funnel", async (req, res) => {
     const { steps } = req.body;
     const sql = buildQuery(steps)
 
-    console.log(sql)
+    console.log(metabaseSQL)
     const result = await prisma.$queryRawUnsafe(sql);
     // Serialize result to handle BigInt values
     const serializedResult = JSONbig.stringify({ data: result });

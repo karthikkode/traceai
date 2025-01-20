@@ -1,17 +1,45 @@
 import { Trash2, ExternalLink, Edit3, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface TraceProps {
   traceId: string;
   name: string;
   description: string;
+  cardID: string;
 }
 
-const TraceCard: React.FC<TraceProps> = ({ traceId, name, description }) => {
+const TraceCard: React.FC<TraceProps> = ({
+  traceId,
+  name,
+  description,
+  cardID,
+}) => {
+  console.log("traceId", traceId);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
-  const handleDelete = () => {
-    // Add delete logic here, for example, calling an API to delete the trace
-    console.log(`Delete trace with ID: ${traceId}`);
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(`${backendUrl}/traces/${traceId}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Trace deleted successfully:", response.data);
+      window.location.reload();
+      // You can add logic here to refresh the page or navigate to another page
+    } catch (error: any) {
+      if (error.response) {
+        console.error(
+          `Failed to delete trace: ${error.response.status} - ${error.response.data.error}`
+        );
+        alert(`Failed to delete trace: ${error.response.data.error}`);
+      } else {
+        console.error("Failed to delete trace:", error.message);
+        alert("An unexpected error occurred while deleting the trace.");
+      }
+    }
   };
 
   const handleEdit = () => {
@@ -23,7 +51,10 @@ const TraceCard: React.FC<TraceProps> = ({ traceId, name, description }) => {
   };
 
   const handleViewFunnel = () => {
-    navigate(`/trace/funnel/viewTrace/${traceId}`);
+    window.open(
+      `http://localhost:3002/question/${cardID}?deviceType=desktop&traceEvent=page-visit`,
+      "_blank"
+    );
   };
 
   return (

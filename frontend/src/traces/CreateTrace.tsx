@@ -313,7 +313,11 @@ function TraceBuilder() {
                   value={step.name}
                   placeholder="Step Name"
                   onChange={(e) =>
-                    updateCondition(step.id, 0, 0, "value", e.target.value)
+                    setSteps((prev) =>
+                      prev.map((s) =>
+                        s.id === step.id ? { ...s, name: e.target.value } : s
+                      )
+                    )
                   }
                   className="w-60"
                 />

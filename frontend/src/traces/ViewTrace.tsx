@@ -8,8 +8,37 @@ const TraceFunnel = () => {
   const [funnelData, setFunnelData] = useState<any>([]);
   const { traceId } = useParams<{ traceId: string }>();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  const generateRandomColor = () =>
-    `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+
+  const colorPalette = [
+    "#FF5733", // Bright red
+    "#33FF57", // Bright green
+    "#3357FF", // Bright blue
+    "#FF33A1", // Bright pink
+    "#FFC300", // Bright yellow
+    "#33FFF6", // Bright cyan
+    "#8D33FF", // Bright purple
+    "#FF8C33", // Bright orange
+    "#6A33FF", // Bright indigo
+    "#33FF8C", // Bright lime
+  ];
+
+  // Function to assign colors, ensuring no consecutive steps share the same color
+  const assignColors = (steps: any[]) => {
+    const assignedColors: any = [];
+    for (let i = 0; i < steps.length; i++) {
+      const colorIndex = i % colorPalette.length;
+      // Ensure no consecutive steps have the same color
+      const color =
+        i > 0 && assignedColors[i - 1] === colorPalette[colorIndex]
+          ? colorPalette[(colorIndex + 1) % colorPalette.length]
+          : colorPalette[colorIndex];
+      assignedColors.push(color);
+    }
+    return steps.map((step, index) => ({
+      ...step,
+      fill: assignedColors[index],
+    }));
+  };
 
   useEffect(() => {
     const fetchTrace = async () => {
@@ -17,18 +46,21 @@ const TraceFunnel = () => {
         const trace = await axios.get(`${backendUrl}/traces/${traceId}`);
         let steps = { steps: "" };
         steps.steps = trace.data.data.steps;
+
         const funnelDataResponse = await axios.post(
           `${backendUrl}/traces/getTraceData/funnel`,
           steps
         );
-        funnelDataResponse.data.data.map((step: any) => {
-          step.fill = generateRandomColor();
-        });
-        setFunnelData(funnelDataResponse.data.data);
+
+        // Assign colors using the simple alternate logic
+        const updatedFunnelData = assignColors(funnelDataResponse.data.data);
+
+        setFunnelData(updatedFunnelData);
       } catch (error) {
         console.error("Error fetching trace:", error);
       }
     };
+
     fetchTrace();
   }, []);
 

@@ -14,7 +14,7 @@ interface Trace {
   description: string;
   createdAt: string;
   updatedAt: string;
-  organizationId: string;
+  traceMetabaseCard: string;
 }
 
 const AllTraces = () => {
@@ -62,6 +62,7 @@ const AllTraces = () => {
                   traceId={trace.id}
                   name={trace.name}
                   description={trace.description || "No description provided."}
+                  cardID={trace.traceMetabaseCard}
                 />
               </div>
             ))}

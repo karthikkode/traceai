@@ -38,6 +38,7 @@ function TraceEditPage() {
   const [steps, setSteps] = useState<Step[]>([]);
   const { traceId } = useParams<{ traceId: string }>();
   const [trace, setTrace] = useState<any>(null);
+  const [cardID, setCardID] = useState<any>(null);
   const [traceName, setTraceName] = useState<string>("");
   const [traceDescription, setTraceDescription] = useState<string>("");
   const [nextStepId, setNextStepId] = useState(2);
@@ -52,6 +53,7 @@ function TraceEditPage() {
       try {
         setLoading(true);
         const response = await axios.get(`${backendUrl}/traces/${traceId}`);
+        console.log("traceMetabaseCard", response.data.traceMetabaseCard);
 
         // Parse the response to ensure correct structure
         const updatedSteps = response.data.data.steps.map((step: Step) => ({
@@ -71,6 +73,7 @@ function TraceEditPage() {
         setSteps(updatedSteps);
         setTraceName(response.data.name);
         setTraceDescription(response.data.description || "");
+        setCardID(response.data.traceMetabaseCard);
 
         // Dynamically set the nextStepId based on the max step ID
         const maxStepId = Math.max(
@@ -279,6 +282,7 @@ function TraceEditPage() {
 
   const saveTrace = async () => {
     try {
+      console.log("trace", trace);
       const response = await axios.put(
         `${backendUrl}/traces/${traceId}`,
         trace,
@@ -303,13 +307,15 @@ function TraceEditPage() {
     const newTrace: any = {
       name: "",
       description: "",
+      cardID: "",
       data: {},
     };
     newTrace.name = traceName;
     newTrace.data.steps = steps;
     newTrace.description = traceDescription;
+    newTrace.cardID = cardID;
     setTrace(newTrace);
-  }, [steps, traceName, traceDescription, steps]);
+  }, [steps, traceName, traceDescription, steps, cardID]);
 
   return (
     <>
@@ -360,13 +366,14 @@ function TraceEditPage() {
                 <Input
                   value={step.name}
                   placeholder="Step Name"
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setSteps((prev) =>
                       prev.map((s) =>
                         s.id === step.id ? { ...s, name: e.target.value } : s
                       )
-                    )
-                  }
+                    );
+                    setIsChanged(true);
+                  }}
                   className="w-60"
                 />
               </div>

@@ -45,10 +45,23 @@
         }
       };
 
+      const getPageLoadTime = () => {
+        if (window.performance && window.performance.getEntriesByType) {
+          const navigationEntries = window.performance.getEntriesByType("navigation");
+      
+          if (navigationEntries.length > 0) {
+            const navigationTiming = navigationEntries[0];
+            return navigationTiming.loadEventEnd - navigationTiming.startTime; // Total page load time in ms
+          }
+        }
+        console.warn("PerformanceNavigationTiming API not supported.");
+        return null; // Return null if metrics are not available
+      };
+
       //Helper function to call the payment failure api
       const paymentFailureApi = async () => {
         try {
-          const response = await fetch(`${backendBaseUrl}/payment/pageVisitCount`, {
+          const response = await fetch(`${backendBaseUrl}payment/pageVisitCount`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -68,10 +81,22 @@
   
       const logPageVisit = async () => {
         const url = window.location.href;
+        
+        // Check if the page visit was already logged
+        const lastLoggedPage = sessionStorage.getItem("lastLoggedPage");
+        const pageLoadTime = getPageLoadTime();
+        if (lastLoggedPage === url) {
+          console.log("Page visit already logged for this URL:", url);
+          return; // Avoid logging duplicate page visits
+        }
+      
+        // Store the current URL as the last logged page
+        sessionStorage.setItem("lastLoggedPage", url);
+      
         const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop";
         const browser = navigator.userAgent;
         const ipAddress = await fetchIpAddress();
-    
+      
         const eventData = {
           ipAddress,
           location: null,
@@ -84,9 +109,10 @@
           browser,
           additionalData: {
             eventType: "page_visit",
+            pageLoadTime
           },
         };
-    
+      
         sendEventData(eventData);
         paymentFailureApi();
       };
