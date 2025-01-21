@@ -25,7 +25,6 @@ const TopBar = () => {
             <MenubarItem onClick={() => navigate("/payment/setup")}>
               Setup
             </MenubarItem>
-            <MenubarItem>Failures</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
@@ -37,22 +36,12 @@ const TopBar = () => {
           </MenubarTrigger>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger className="cursor-pointer">Forms</MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem>Create Form</MenubarItem>
-            <MenubarItem>Manage Forms</MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
-        <MenubarMenu>
           <MenubarTrigger
             className="cursor-pointer"
             onClick={() => navigate("/setup")}
           >
             Setup
           </MenubarTrigger>
-        </MenubarMenu>
-        <MenubarMenu>
-          <MenubarTrigger className="cursor-pointer">Settings</MenubarTrigger>
         </MenubarMenu>
       </Menubar>
 

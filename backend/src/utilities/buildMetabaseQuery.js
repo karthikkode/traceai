@@ -251,15 +251,17 @@ function getGroupConditions(groups) {
 
   groups.forEach((group, index) => {
     const conditions = group.conditions.map((condition) => {
-      if (condition.metricName === "page") {
+      if (condition.metricName === "page" || condition.metricName === "button") {
         const regexCondition =
           condition.regexFilter === "startsWith"
             ? `${condition.value}%`
             : condition.regexFilter === "endsWith"
             ? `%${condition.value}`
             : `%${condition.value}%`;
+        const traceEventValue = condition.eventType === "click" ? "trace-click" : "page-visit";
 
-        return `("traceEvent" = 'page-visit' AND "traceEventName" LIKE '${regexCondition}')`;
+
+        return `("traceEvent" = '${traceEventValue}' AND "traceEventName" LIKE '${regexCondition}')`;
       }
       // Add more cases for other metrics if needed
       return ""; // Default to an empty condition

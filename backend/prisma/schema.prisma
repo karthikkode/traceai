@@ -53,6 +53,7 @@ model PaymentUrl {
 model FormFieldInteraction {
   id             String   @id @default(uuid()) // Unique identifier
   form_id        String   // Unique identifier for the form
+  sessionId      String   // Session ID for the interaction
   field_name     String   // Name or ID of the field
   field_content  String   // Content entered by the user
   field_rank     Int      // Order of the field in the form

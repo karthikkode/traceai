@@ -1,6 +1,6 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
-
+const  sendEmail  = require("../utilities/sendEmail");
 const prisma = new PrismaClient();
 const router = express.Router();
 const nodemailer = require("nodemailer");
@@ -48,7 +48,7 @@ router.get("/getPaymentUrls", async (req, res) => {
 
 
   router.put("/updatePaymentUrl", async (req, res) => {
-    const { currentUrl, newUrl } = req.body;
+    const { currentUrl, newUrl, duration, failureCount } = req.body;
   
     if (!currentUrl || !newUrl) {
       return res.status(400).json({ error: "Both currentUrl and newUrl are required" });
@@ -67,7 +67,7 @@ router.get("/getPaymentUrls", async (req, res) => {
       // Update the URL
       const updatedUrl = await prisma.paymentUrl.update({
         where: { id: existingUrl.id },
-        data: { url: newUrl },
+        data: { url: newUrl, duration, failureCount},
       });
   
       return res.status(200).json({ message: "URL updated successfully", data: updatedUrl });
@@ -114,15 +114,9 @@ router.get("/getPaymentUrls", async (req, res) => {
   
       // If the count exceeds the limit, send an email
       if (count >= limit) {
-        const mailOptions = {
-          from: process.env.EMAIL_USER,
-          to: "tsaikarthik@yahoo.in", // Replace with the recipient's email
-          subject: "High Traffic Alert",
-          text: `The page "${paymentUrl.url}" has exceeded the traffic limit of ${limit} within ${durationInMinutes} minutes. Current count: ${count}`,
-        };
-  
-        await transporter.sendMail(mailOptions);
-        console.log("Email sent successfully.");
+        const emailSubject = "High Traffic Alert"
+        emailText = `The page "${paymentUrl.url}" has exceeded the traffic limit of ${limit} within ${durationInMinutes} minutes. Current count: ${count}`      
+        await sendEmail("tsaikarthik@yahoo.in", emailSubject, emailText);
   
         // Update the lastEmailSentAt timestamp in the database
         await prisma.paymentUrl.update({
