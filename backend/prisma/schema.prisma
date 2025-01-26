@@ -92,9 +92,9 @@ model FormNotificationConfig {
 }
 
 model MetabaseDashboards {
-  id                   String   @id @default(uuid()) // Unique identifier
-  dashboardName        String
-  cardId               Int
-  createdAt            DateTime @default(now())      // Timestamp when the config was created
-  updatedAt            DateTime @updatedAt           // Timestamp when the config was last updated
+  id            String   @id @default(uuid()) // Unique identifier
+  dashboardName String   @unique              // Ensure unique constraint
+  cardId        Int
+  createdAt     DateTime @default(now())      // Timestamp when the config was created
+  updatedAt     DateTime @updatedAt           // Timestamp when the config was last updated
 }

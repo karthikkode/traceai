@@ -1,37 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import TopBar from "@/components/TopBar";
 
 const DropoffConfigForm = () => {
-  const sendApiRequests = async (url: string, urlMatchType: string) => {
-    if (!url || !urlMatchType) {
-      console.error("Missing required parameters: url and urlMatchType");
-      return;
-    }
-
-    const apis = [
-      { name: "PLT Report", endpoint: "/pltReport" },
-      { name: "Uninteracted Time Report", endpoint: "/uninteractedTimeReport" },
-      { name: "Time Spent Report", endpoint: "/timeSpentReport" },
-      { name: "Average Page Exits", endpoint: "/averagePageExitsByUrl" },
-    ];
-
-    for (const api of apis) {
-      try {
-        console.log(`Sending request to ${api.name} API...`);
-        const response = await axios.get(
-          `http://localhost:3000/notifications/${api.endpoint}`,
-          {
-            params: { url, urlMatchType },
-          }
-        );
-        console.log(`${api.name} API Response:`, response.data);
-      } catch (error: any) {
-        console.error(`Error in ${api.name} API:`, error.message);
-      }
-    }
-  };
   const [formData, setFormData] = useState({
     id: null,
     urlPath: "",
@@ -111,45 +93,6 @@ const DropoffConfigForm = () => {
     }
   };
 
-  const handleSendInsights = async (config: any) => {
-    let dropOff;
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/notifications/calculateDropoff",
-        {
-          params: {
-            url: config.urlPath,
-            urlMatchType: config.urlMatchType,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        dropOff = response.data.serializedResult[0].non_converted_percentage;
-        console.log("dropOff", dropOff);
-        if (dropOff && dropOff >= config.dropoffPercentage) {
-          console.log("fdsj");
-          const url = config.urlPath;
-          const urlMatchType = config.urlMatchType;
-          await sendApiRequests(url, urlMatchType);
-        } else {
-          console.log("dsgvj");
-        }
-        return dropOff; // Return the result for further use
-      } else {
-        console.error(
-          "Error:",
-          response.data.message || "Unknown error occurred"
-        );
-      }
-    } catch (error) {
-      console.error("Error calling calculateDropoff API:", error);
-      throw error; // Re-throw the error if needed for higher-level handling
-    }
-
-    console.log("dropOff", dropOff);
-  };
-
   const resetForm = () => {
     setFormData({
       id: null,
@@ -183,53 +126,121 @@ const DropoffConfigForm = () => {
                 : "Create Drop-off Configuration"}
             </h1>
             <form onSubmit={handleSubmit}>
-              {/* Form Fields */}
-              {/* ...existing form fields */}
+              <div className="mb-4">
+                <Label htmlFor="urlPath">URL Path:</Label>
+                <Input
+                  type="text"
+                  id="urlPath"
+                  value={formData.urlPath}
+                  onChange={(e) =>
+                    setFormData({ ...formData, urlPath: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <Label htmlFor="urlGroupName">URL Group Name:</Label>
+                <Input
+                  type="text"
+                  id="urlGroupName"
+                  value={formData.urlGroupName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, urlGroupName: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <Label htmlFor="dropoffPercentage">Drop-off Percentage:</Label>
+                <Input
+                  type="number"
+                  id="dropoffPercentage"
+                  value={formData.dropoffPercentage}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      dropoffPercentage: Number(e.target.value),
+                    })
+                  }
+                  required
+                  min="0"
+                  max="100"
+                />
+              </div>
+
+              <div className="mb-4">
+                <Label htmlFor="notificationFrequency">
+                  Notification Frequency (Minutes):
+                </Label>
+                <Input
+                  type="number"
+                  id="notificationFrequency"
+                  value={formData.notificationFrequency}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      notificationFrequency: Number(e.target.value),
+                    })
+                  }
+                  required
+                  min="0"
+                />
+              </div>
+
+              <div className="mb-4">
+                <Label htmlFor="urlMatchType">URL Match Type:</Label>
+                <Select
+                  value={formData.urlMatchType}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, urlMatchType: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Match Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="exact">Exact</SelectItem>
+                    <SelectItem value="contains">Contains</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button type="submit" className="w-full">
+                {isEditing ? "Update Configuration" : "Create Configuration"}
+              </Button>
             </form>
           </>
         ) : (
           <>
-            <div className="mt-8">
-              <h2 className="text-lg font-semibold mb-4">
-                Existing Drop-off Configurations
-              </h2>
-              {loading ? (
-                <p>Loading configurations...</p>
-              ) : configurations.length > 0 ? (
-                <div className="space-y-4">
-                  {configurations.map((config: any) => (
-                    <div
-                      key={config.id}
-                      className="p-4 border rounded-md shadow-sm bg-gray-100 text-gray-900"
-                    >
-                      <div>
-                        <p>
-                          <strong className="text-black">URL Path:</strong>{" "}
-                          {config.urlPath}
-                        </p>
-                        <p>
-                          <strong className="text-black">Group Name:</strong>{" "}
-                          {config.urlGroupName}
-                        </p>
-                        <p>
-                          <strong className="text-black">
-                            Drop-off Percentage:
-                          </strong>{" "}
-                          {config.dropoffPercentage}%
-                        </p>
-                        <p>
-                          <strong className="text-black">
-                            Notification Frequency (Minutes):
-                          </strong>{" "}
-                          {config.notificationFrequency}
-                        </p>
-                        <p>
-                          <strong className="text-black">
-                            URL Match Type:
-                          </strong>{" "}
-                          {config.urlMatchType}
-                        </p>
-                      </div>
+            <h2 className="text-lg font-semibold mb-4">
+              Existing Drop-off Configurations
+            </h2>
+            {loading ? (
+              <p>Loading configurations...</p>
+            ) : configurations.length > 0 ? (
+              <div className="space-y-4">
+                {configurations.map((config: any) => (
+                  <Card key={config.id}>
+                    <CardHeader>
+                      <CardTitle>{config.urlGroupName}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p>
+                        <strong>URL Path:</strong> {config.urlPath}
+                      </p>
+                      <p>
+                        <strong>Drop-off Percentage:</strong>{" "}
+                        {config.dropoffPercentage}%
+                      </p>
+                      <p>
+                        <strong>Notification Frequency:</strong>{" "}
+                        {config.notificationFrequency} minutes
+                      </p>
+                      <p>
+                        <strong>URL Match Type:</strong> {config.urlMatchType}
+                      </p>
                       <div className="flex justify-end gap-2 mt-4">
                         <Button size="sm" onClick={() => handleEdit(config)}>
                           Edit
@@ -241,29 +252,22 @@ const DropoffConfigForm = () => {
                         >
                           Delete
                         </Button>
-                        <Button
-                          size="sm"
-                          className="bg-blue-500 text-white hover:bg-blue-600"
-                          onClick={() => handleSendInsights(config)}
-                        >
-                          Send Insights
-                        </Button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No configurations found.</p>
-              )}
-              <Button
-                type="button"
-                variant="outline"
-                className="mt-4"
-                onClick={handleCreateNew}
-              >
-                Create New Configuration
-              </Button>
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p>No configurations found.</p>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4"
+              onClick={handleCreateNew}
+            >
+              Create New Configuration
+            </Button>
           </>
         )}
       </div>

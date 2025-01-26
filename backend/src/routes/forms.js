@@ -104,4 +104,16 @@ router.post("/createPageExitsCountDashboard", async (req, res) => {
   }
 });
 
+router.get('/getDashboards', async (req, res) => {
+  try {
+    const dashboards = await prisma.metabaseDashboards.findMany({
+      select: { dashboardName: true, cardId: true },
+    });
+    res.json(dashboards);
+  } catch (error) {
+    console.error("Error fetching dashboards:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 module.exports = router;

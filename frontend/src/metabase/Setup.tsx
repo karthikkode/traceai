@@ -1,8 +1,42 @@
 import TopBar from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import { useState, useEffect } from "react";
+
+type Dashboards = {
+  [key: string]: number; // The dashboard name is a string, and the cardId is a number
+};
 
 function MetabaseSetup() {
+  const [dashboards, setDashboards] = useState<Dashboards>({});
+  // Fetch dashboard data on component mount
+  useEffect(() => {
+    const fetchDashboards = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/form/getDashboards"
+        );
+        const dashboardsData = response.data.reduce(
+          (acc: any, dashboard: any) => {
+            acc[dashboard.dashboardName] = dashboard.cardId;
+            return acc;
+          },
+          {}
+        );
+        setDashboards(dashboardsData);
+      } catch (error) {
+        console.error("Error fetching dashboards:", error);
+      }
+    };
+
+    fetchDashboards();
+  }, []);
+
+  useEffect(() => {
+    console.log(dashboards);
+    console.log(dashboards["Uninteracted Time Dashboard"]);
+  }, [dashboards]);
+
   const handleFormsDashboard = async () => {
     console.log("Creating Forms Dashboard...");
     const response = await axios.post(
@@ -59,7 +93,10 @@ function MetabaseSetup() {
             <Button className="w-full p-4" onClick={handleFormsDashboard}>
               Create Forms Dashboard
             </Button>
-            <a href="#" className="text-blue-600 underline text-sm mt-2 block">
+            <a
+              href={`http://localhost:3002/question/${dashboards["Form Dashboard"]}`}
+              className="text-blue-600 underline text-sm mt-2 block"
+            >
               View Forms Dashboard
             </a>
           </div>
@@ -67,7 +104,10 @@ function MetabaseSetup() {
             <Button className="w-full p-4" onClick={handlePLTDashboard}>
               Create PLT Dashboard
             </Button>
-            <a href="#" className="text-blue-600 underline text-sm mt-2 block">
+            <a
+              href={`http://localhost:3002/question/${dashboards["PLT Dashboard"]}`}
+              className="text-blue-600 underline text-sm mt-2 block"
+            >
               View PLT Dashboard
             </a>
           </div>
@@ -78,7 +118,10 @@ function MetabaseSetup() {
             >
               Create Uninteracted Time Dashboard
             </Button>
-            <a href="#" className="text-blue-600 underline text-sm mt-2 block">
+            <a
+              href={`http://localhost:3002/question/${dashboards["Uninteracted Time Dashboard"]}`}
+              className="text-blue-600 underline text-sm mt-2 block"
+            >
               View Uninteracted Time Dashboard
             </a>
           </div>
@@ -86,7 +129,10 @@ function MetabaseSetup() {
             <Button className="w-full p-4" onClick={handleTimeSpentDashboard}>
               Create Time Spent on Page Dashboard
             </Button>
-            <a href="#" className="text-blue-600 underline text-sm mt-2 block">
+            <a
+              href={`http://localhost:3002/question/${dashboards["Time Spent on Page by Converted Customers"]}`}
+              className="text-blue-600 underline text-sm mt-2 block"
+            >
               View Time Spent on Page Dashboard
             </a>
           </div>
@@ -94,7 +140,10 @@ function MetabaseSetup() {
             <Button className="w-full p-4" onClick={handlePageExitsDashboard}>
               Create Page Exits Dashboard
             </Button>
-            <a href="#" className="text-blue-600 underline text-sm mt-2 block">
+            <a
+              href={`http://localhost:3002/question/${dashboards["Page Exits Count Dashboard"]}`}
+              className="text-blue-600 underline text-sm mt-2 block"
+            >
               View Page Exits Dashboard
             </a>
           </div>
