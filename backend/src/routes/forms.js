@@ -3,7 +3,11 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 const router = express.Router();
-const { createMetabaseFormsDashboard } = require("../routes/metabase")
+const {   createMetabaseFormsDashboard,
+  createUninteractedTimeDashboard,
+  createPLTDashboard,
+  createTimeSpentOnPageDashboard,
+  createPageExitsCountDashboard } = require("../routes/metabase")
 
 // POST API to log form field interaction
 router.post("/logFormInteraction", async (req, res) => {
@@ -46,6 +50,58 @@ router.post("/createFromsDashboard", async (req, res) => {
       console.error("Error creating form dashboard:", error);
       return res.status(500).json({ error: "Failed to create form dashboard" });
     }
-  });
+});
+
+router.post("/createUninteractedTimeDashboard", async (req, res) => {
+  try {
+    const cardId = await createUninteractedTimeDashboard()
+
+    return res
+      .status(201)
+      .json({ message: "Dashboard created successfully", cardId });
+  } catch (error) {
+    console.error("Error creating form dashboard:", error);
+    return res.status(500).json({ error: "Failed to create form dashboard" });
+  }
+});
+
+router.post("/createPLTDashboard", async (req, res) => {
+  try {
+    const cardId = await createPLTDashboard()
+
+    return res
+      .status(201)
+      .json({ message: "Dashboard created successfully", cardId });
+  } catch (error) {
+    console.error("Error creating form dashboard:", error);
+    return res.status(500).json({ error: "Failed to create form dashboard" });
+  }
+});
+
+router.post("/createTimeSpentOnPageDashboard", async (req, res) => {
+  try {
+    const cardId = await createTimeSpentOnPageDashboard()
+
+    return res
+      .status(201)
+      .json({ message: "Dashboard created successfully", cardId });
+  } catch (error) {
+    console.error("Error creating form dashboard:", error);
+    return res.status(500).json({ error: "Failed to create form dashboard" });
+  }
+});
+
+router.post("/createPageExitsCountDashboard", async (req, res) => {
+  try {
+    const cardId = await createPageExitsCountDashboard()
+
+    return res
+      .status(201)
+      .json({ message: "Dashboard created successfully", cardId });
+  } catch (error) {
+    console.error("Error creating form dashboard:", error);
+    return res.status(500).json({ error: "Failed to create form dashboard" });
+  }
+});
 
 module.exports = router;

@@ -9,26 +9,41 @@ function MetabaseSetup() {
       "http://localhost:3000/form/createFromsDashboard"
     );
     console.log(response.data);
-    // Add your function logic here
   };
 
   const handlePLTDashboard = async () => {
     console.log("Creating PLT Dashboard...");
+    const response = await axios.post(
+      "http://localhost:3000/form/createPLTDashboard"
+    );
+    console.log(response.data);
     // Add your function logic here
   };
 
   const handleUninteractedTimeDashboard = async () => {
     console.log("Creating Uninteracted Time Dashboard...");
+    const response = await axios.post(
+      "http://localhost:3000/form/createUninteractedTimeDashboard"
+    );
+    console.log(response.data);
     // Add your function logic here
   };
 
   const handleTimeSpentDashboard = async () => {
     console.log("Creating Time Spent on Page Dashboard...");
+    const response = await axios.post(
+      "http://localhost:3000/form/createTimeSpentOnPageDashboard"
+    );
+    console.log(response.data);
     // Add your function logic here
   };
 
   const handlePageExitsDashboard = async () => {
     console.log("Creating Page Exits Dashboard...");
+    const response = await axios.post(
+      "http://localhost:3000/form/createPageExitsCountDashboard"
+    );
+    console.log(response.data);
     // Add your function logic here
   };
 
