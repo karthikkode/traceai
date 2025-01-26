@@ -9,6 +9,10 @@ import AllTraces from "./traces/AllTraces";
 import Setup from "./setup/Setup";
 import TraceFunnel from "./traces/ViewTrace";
 import PaymentSetup from "./payment/Setup";
+import HeatMapPage from "./heatmap/heatmappage";
+import DropoffConfig from "./notifcations/DropOffNotification";
+import FormNotificationPage from "./notifcations/FormNotification";
+import MetabaseSetup from "./metabase/Setup";
 
 function App() {
   return (
@@ -35,10 +39,14 @@ function App() {
         <Route path="/alltraces" element={<AllTraces />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/payment/setup" element={<PaymentSetup />} />
+        <Route path="/heatmap" element={<HeatMapPage />} />
+        <Route path="/dropOffNotification" element={<DropoffConfig />} />
+        <Route path="/metabaseSetup" element={<MetabaseSetup />} />
         <Route
           path="/trace/funnel/viewTrace/:traceId"
           element={<TraceFunnel />}
         />
+        <Route path="/formNotification" element={<FormNotificationPage />} />
       </Routes>
     </Router>
   );

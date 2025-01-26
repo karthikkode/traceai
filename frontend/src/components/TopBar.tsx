@@ -20,10 +20,18 @@ const TopBar = () => {
 
       <Menubar>
         <MenubarMenu>
-          <MenubarTrigger className="cursor-pointer">Payment</MenubarTrigger>
+          <MenubarTrigger className="cursor-pointer">
+            Notification
+          </MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={() => navigate("/payment/setup")}>
-              Setup
+              Payment Notification
+            </MenubarItem>
+            <MenubarItem onClick={() => navigate("/dropOffNotification")}>
+              DropOff Notification
+            </MenubarItem>
+            <MenubarItem onClick={() => navigate("/formNotification")}>
+              Form Notification
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
@@ -38,10 +46,21 @@ const TopBar = () => {
         <MenubarMenu>
           <MenubarTrigger
             className="cursor-pointer"
-            onClick={() => navigate("/setup")}
+            onClick={() => navigate("/heatmap")}
           >
-            Setup
+            Heatmap
           </MenubarTrigger>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger className="cursor-pointer">Setup</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem onClick={() => navigate("/setup")}>
+              Setup Instruction
+            </MenubarItem>
+            <MenubarItem onClick={() => navigate("/metabaseSetup")}>
+              Metabase Setup
+            </MenubarItem>
+          </MenubarContent>
         </MenubarMenu>
       </Menubar>
 

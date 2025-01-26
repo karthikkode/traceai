@@ -17,7 +17,8 @@ datasource db {
 model Event {
   id             String   @id @default(uuid()) // Unique identifier
   ipAddress      String   // Visitor's IP address
-  location  String?  // Location of the visitor (optional)
+  location       String?
+  sessionId      String?
   elementId      String?  // Optional ID of the element involved
   elementContent String?   // Content of the element tracked
   traceEventName String?  // trace event name (name of the event in the tag)
@@ -59,4 +60,41 @@ model FormFieldInteraction {
   field_rank     Int      // Order of the field in the form
   createdAt      DateTime @default(now())      // Timestamp when the field was interacted with
   updatedAt      DateTime @updatedAt           // Timestamp when the field interaction was last updated
+}
+
+model MouseMovement {
+  id        String   @id @default(uuid()) // Unique identifier
+  sessionId String   // Unique session ID
+  pageUrl   String   // URL of the page
+  x         Int      // X-coordinate of the mouse
+  y         Int      // Y-coordinate of the mouse
+  timestamp DateTime // Timestamp of the movement
+}
+
+model DropoffNotificationConfig {
+  id                 String   @id @default(uuid()) // Unique identifier
+  urlPath            String   // URL path to track
+  urlGroupName       String   // Group name for the URL (e.g., Payment URLs)
+  dropoffPercentage  Float    // Drop-off percentage threshold
+  notificationFrequency Int   // Notification frequency in minutes
+  urlMatchType       String   @default("exact") // URL match type (exact, startsWith, endsWith)
+  createdAt          DateTime @default(now())      // Timestamp when the config was created
+  updatedAt          DateTime @updatedAt           // Timestamp when the config was last updated
+}
+
+model FormNotificationConfig {
+  id                   String   @id @default(uuid()) // Unique identifier
+  formId               String   // Unique identifier for the form
+  dropOffPercentage    Float    // Drop-off percentage threshold
+  notificationFrequency Int     // Notification frequency in minutes
+  createdAt            DateTime @default(now())      // Timestamp when the config was created
+  updatedAt            DateTime @updatedAt           // Timestamp when the config was last updated
+}
+
+model MetabaseDashboards {
+  id                   String   @id @default(uuid()) // Unique identifier
+  dashboardName        String
+  cardId               Int
+  createdAt            DateTime @default(now())      // Timestamp when the config was created
+  updatedAt            DateTime @updatedAt           // Timestamp when the config was last updated
 }

@@ -47,6 +47,7 @@ const TraceFunnel = () => {
         let steps = { steps: "" };
         steps.steps = trace.data.data.steps;
 
+        console.log(steps.steps);
         const funnelDataResponse = await axios.post(
           `${backendUrl}/traces/getTraceData/funnel`,
           steps

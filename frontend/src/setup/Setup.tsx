@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import TopBar from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";

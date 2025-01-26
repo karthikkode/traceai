@@ -110,9 +110,7 @@ router.delete("/:id", async (req, res) => {
 router.post("/getTraceData/funnel", async (req, res) => {
   try {
     const { steps } = req.body;
-    const sql = buildQuery(steps)
-
-    console.log(metabaseSQL)
+    const sql = await buildQuery(steps)
     const result = await prisma.$queryRawUnsafe(sql);
     // Serialize result to handle BigInt values
     const serializedResult = JSONbig.stringify({ data: result });

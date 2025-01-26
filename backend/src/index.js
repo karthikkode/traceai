@@ -7,6 +7,9 @@ const traceRoutes = require("./routes/traces");
 const userRoutes = require("./routes/user");
 const paymentRoutes = require("./routes/payment");
 const formRoutes = require("./routes/forms");
+const dropOffRoutes = require("./routes/dropOffNotifications");
+const notificationRoutes = require("./routes/notifications");
+const formNotificationRoutes = require("./routes/formNotifications");
 
 dotenv.config();
 
@@ -29,6 +32,9 @@ app.use("/traces", traceRoutes);
 app.use("/user", userRoutes);
 app.use("/payment", paymentRoutes);
 app.use("/form", formRoutes);
+app.use("/dropOff", dropOffRoutes);
+app.use("/notifications", notificationRoutes);
+app.use("/formNotifications", formNotificationRoutes);
 
 // Test Route
 app.get("/", (req, res) => {

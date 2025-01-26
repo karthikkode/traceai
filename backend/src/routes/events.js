@@ -1,5 +1,7 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const generateHeatmapImage = require('../utilities/generateHeatMap'); // The function above
+
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -8,6 +10,7 @@ const router = express.Router();
 router.post("/", async (req, res) => {
   const {
     ipAddress,
+    sessionId,
     location,
     elementId,
     elementContent,
@@ -23,6 +26,7 @@ router.post("/", async (req, res) => {
     const event = await prisma.event.create({
       data: {
         ipAddress,
+        sessionId,
         location,
         elementId,
         elementContent,
@@ -105,5 +109,53 @@ router.get("/trendingPhrases", async (req, res) => {
   }
 });
 
+// POST API to log mouse movement
+router.post("/mouseMovement", async (req, res) => {
+  const { sessionId, pageUrl, mouseData } = req.body;
+
+  if (!sessionId || !pageUrl || !mouseData || mouseData.length === 0) {
+    return res.status(400).json({ error: "Invalid request data" });
+  }
+
+  try {
+    // Batch insert mouse movement data
+    await prisma.mouseMovement.createMany({
+      data: mouseData.map(({ x, y, timestamp }) => ({
+        sessionId,
+        pageUrl,
+        x,
+        y,
+        timestamp: new Date(timestamp),
+      })),
+    });
+
+    res.status(201).json({ message: "Mouse data logged successfully" });
+  } catch (error) {
+    console.error("Error logging mouse data:", error);
+    res.status(500).json({ error: "Failed to log mouse data" });
+  }
+});
+
+router.get('/heatmap/:pageUrl', async (req, res) => {
+  const { pageUrl } = req.params;
+  console.log("heatmap")
+
+  try {
+    // Fetch mouse movement data from the database
+    const heatmapData = await prisma.mouseMovement.findMany({
+      where: { pageUrl },
+      select: { x: true, y: true }, // Fetch only x and y coordinates
+    });
+
+    // Generate the heatmap image
+    const heatmapImagePath = await generateHeatmapImage(pageUrl, heatmapData);
+
+    // Send the image as a response
+    res.sendFile(heatmapImagePath);
+  } catch (error) {
+    console.error('Error generating heatmap:', error);
+    res.status(500).json({ error: 'Failed to generate heatmap' });
+  }
+});
 
 module.exports = router;
