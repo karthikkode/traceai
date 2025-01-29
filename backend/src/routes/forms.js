@@ -7,7 +7,8 @@ const {   createMetabaseFormsDashboard,
   createUninteractedTimeDashboard,
   createPLTDashboard,
   createTimeSpentOnPageDashboard,
-  createPageExitsCountDashboard } = require("../routes/metabase")
+  createPageExitsCountDashboard,
+  createURLAnalysisDashboard } = require("../routes/metabase")
 
 // POST API to log form field interaction
 router.post("/logFormInteraction", async (req, res) => {
@@ -94,6 +95,19 @@ router.post("/createTimeSpentOnPageDashboard", async (req, res) => {
 router.post("/createPageExitsCountDashboard", async (req, res) => {
   try {
     const cardId = await createPageExitsCountDashboard()
+
+    return res
+      .status(201)
+      .json({ message: "Dashboard created successfully", cardId });
+  } catch (error) {
+    console.error("Error creating form dashboard:", error);
+    return res.status(500).json({ error: "Failed to create form dashboard" });
+  }
+});
+
+router.post("/createURLAnalysisDashboard", async (req, res) => {
+  try {
+    const cardId = await createURLAnalysisDashboard()
 
     return res
       .status(201)

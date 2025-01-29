@@ -355,6 +355,94 @@ const executePageExitsReportAnalysis = async (config) => {
   }
 };
 
+// Function to calculate drop-off percentage and send notifications
+const executeDropOffAnalysis = async (config) => {
+  const { urlPath, urlMatchType, dropoffPercentage, urlGroupName } = config;
+
+  const whereClause = getWhereClause(urlMatchType, `"url"`);
+
+  const dropOffSQL = `
+    WITH PageVisits AS (
+      SELECT
+        "sessionId",
+        "url",
+        MIN("createdAt") AS pageVisitedAt
+      FROM "Event"
+      WHERE "traceEvent" = 'page-visit'
+      GROUP BY "sessionId", "url"
+    ),
+    SessionConversion AS (
+      SELECT
+        pv."sessionId",
+        pv."url",
+        CASE
+          WHEN EXISTS (
+            SELECT 1
+            FROM "Event" e
+            WHERE e."sessionId" = pv."sessionId"
+              AND e."traceEvent" = 'page-visit'
+              AND e."url" != pv."url"
+              AND e."createdAt" > pv.pageVisitedAt
+          ) THEN 'converted'
+          ELSE 'non-converted'
+        END AS conversion_status
+      FROM PageVisits pv
+    ),
+    ConversionNumbers AS (
+      SELECT
+        "url",
+        SUM(CASE WHEN conversion_status = 'converted' THEN 1 ELSE 0 END) AS converted_sessions,
+        SUM(CASE WHEN conversion_status = 'non-converted' THEN 1 ELSE 0 END) AS non_converted_sessions,
+        ROUND((SUM(CASE WHEN conversion_status = 'converted' THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2) AS converted_percentage,
+        ROUND((SUM(CASE WHEN conversion_status = 'non-converted' THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2) AS non_converted_percentage
+      FROM SessionConversion
+      GROUP BY "url"
+    )
+    SELECT *
+    FROM ConversionNumbers
+    WHERE ${whereClause};
+  `;
+
+  try {
+    const result = await prisma.$queryRawUnsafe(dropOffSQL, urlPath);
+
+    if (result.length > 0) {
+      const dropOffData = result[0]; // Assuming we have a single row for the URL
+
+      // Check if drop-off percentage exceeds the threshold
+      if (dropOffData.non_converted_percentage >= dropoffPercentage) {
+        const emailContent = `
+          Dear User,
+          The drop-off rate for the URL "${urlPath}" has exceeded the configured threshold of ${dropoffPercentage}%.
+          
+          Drop-off Insights:
+          - URL: ${dropOffData.url}
+          - Converted Percentage: ${dropOffData.converted_percentage}%
+          - Non-Converted Percentage: ${dropOffData.non_converted_percentage}%
+          
+          Please take appropriate actions to improve the user experience.
+          
+          Thank you,
+          TraceAI
+        `;
+
+        await sendEmail(
+          "tsaikarthik@yahoo.in",
+          `${urlGroupName} Drop-off Alert`,
+          emailContent
+        );
+        console.log(`Drop-off alert sent for URL: ${urlPath}`);
+      } else {
+        console.log(`Drop-off percentage for URL "${urlPath}" is within the acceptable range.`);
+      }
+    } else {
+      console.log(`No data found for URL: ${urlPath}`);
+    }
+  } catch (error) {
+    console.error(`Error calculating drop-off for URL ${urlPath}:`, error);
+  }
+};
+
 // Function to schedule tasks dynamically
 const scheduleTask = (config, taskExecutor, taskType) => {
   const { id, notificationFrequency, urlGroupName } = config;
@@ -370,7 +458,7 @@ const scheduleTask = (config, taskExecutor, taskType) => {
 
   // Define cron expression (e.g., every `notificationFrequency` minutes)
   // const cronExpression = `*/${notificationFrequency} * * * *`;
-  const cronExpression =  `24 * * * *`
+  const cronExpression =  `16 * * * *`
 
   // Schedule the job
   const job = cron.schedule(cronExpression, async () => {
@@ -384,7 +472,7 @@ const scheduleTask = (config, taskExecutor, taskType) => {
   console.log(`Scheduled ${taskType} for config ID ${id}. Cron Expression: ${cronExpression}.`);
 };
 
-// Initialize all scheduled tasks on server start
+// Update the scheduler to include drop-off analysis
 const initializeSchedulers = async () => {
   try {
     const configs = await prisma.dropoffNotificationConfig.findMany();
@@ -393,13 +481,12 @@ const initializeSchedulers = async () => {
       scheduleTask(config, executeUninteractedTimeAnalysis, "UninteractedTimeAnalysis");
       scheduleTask(config, executePageExitsReportAnalysis, "PageExitsAnalysis");
       scheduleTask(config, executetimeSpentReportAnalysis, "TimeSpentReportAnalysis");
+      scheduleTask(config, executeDropOffAnalysis, "DropOffAnalysis"); // Schedule drop-off analysis
     });
   } catch (error) {
     console.error("Error initializing schedulers:", error);
   }
 };
-
-// Run the scheduler on start
-initializeSchedulers();
+initializeSchedulers()
 
 module.exports = router;

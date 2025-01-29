@@ -81,6 +81,15 @@ function MetabaseSetup() {
     // Add your function logic here
   };
 
+  const handleURLAnalysisDashboard = async () => {
+    console.log("Creating Page Exits Dashboard...");
+    const response = await axios.post(
+      "http://localhost:3000/form/createURLAnalysisDashboard"
+    );
+    console.log(response.data);
+    // Add your function logic here
+  };
+
   return (
     <>
       <TopBar />
@@ -145,6 +154,17 @@ function MetabaseSetup() {
               className="text-blue-600 underline text-sm mt-2 block"
             >
               View Page Exits Dashboard
+            </a>
+          </div>
+          <div className="text-center">
+            <Button className="w-full p-4" onClick={handleURLAnalysisDashboard}>
+              Create URL Analysis Dashboard
+            </Button>
+            <a
+              href={`http://localhost:3002/question/${dashboards["URL Analysis Dashboard"]}`}
+              className="text-blue-600 underline text-sm mt-2 block"
+            >
+              View URL Analysis Dashboard
             </a>
           </div>
         </div>
