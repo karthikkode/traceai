@@ -1474,7 +1474,7 @@ async function createPLTByBrowserDashboard() {
                         "required": true
                     }
                 },
-                "query": "SELECT\n  CASE\n    WHEN \"browser\" = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' THEN 'Chrome'\n    WHEN \"browser\" = 'Mozilla/5.0 (X11; Linux x86_64)' THEN 'Microsoft Edge'\n    WHEN \"browser\" = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, \"like Gecko) Chrome/132.0.0.0 Safari/537.36' THEN 'Mozilla Firefox'\n    ELSE ''\n  END AS \"browser\",\n  ROUND(\n    AVG(\n      CAST(\"additionalData\" ->> 'pageLoadTime' AS NUMERIC)\n    ),\n    2\n  ) AS avg_page_load_time\nFROM\n  \"Event\"\nWHERE\n  \"createdAt\" BETWEEN {{start_date}} AND {{end_date}}\nGROUP BY\n  \"browser\""
+                "query": "SELECT\n\"browser\",\n  ROUND(\n    AVG(\n      CAST(\"additionalData\" ->> 'pageLoadTime' AS NUMERIC)\n    ),\n    2\n  ) AS avg_page_load_time\nFROM\n  \"Event\"\nWHERE\n  \"createdAt\" BETWEEN {{start_date}} AND {{end_date}}\nGROUP BY\n  \"browser\""
             }
         },
         "display": "bar",
@@ -1521,7 +1521,67 @@ async function createPLTByBrowserDashboard() {
         ],
         "collection_id": null,
         "collection_position": null,
-        "result_metadata": null
+        "result_metadata": [
+            {
+                "display_name": "browser",
+                "field_ref": [
+                    "field",
+                    "browser",
+                    {
+                        "base-type": "type/Text"
+                    }
+                ],
+                "base_type": "type/Text",
+                "effective_type": "type/Text",
+                "name": "browser",
+                "semantic_type": null,
+                "fingerprint": {
+                    "global": {
+                        "distinct-count": 5,
+                        "nil%": 0
+                    },
+                    "type": {
+                        "type/Text": {
+                            "percent-json": 0,
+                            "percent-url": 0,
+                            "percent-email": 0,
+                            "percent-state": 0,
+                            "average-length": 12.8
+                        }
+                    }
+                }
+            },
+            {
+                "display_name": "avg_page_load_time",
+                "field_ref": [
+                    "field",
+                    "avg_page_load_time",
+                    {
+                        "base-type": "type/Decimal"
+                    }
+                ],
+                "base_type": "type/Decimal",
+                "effective_type": "type/Decimal",
+                "name": "avg_page_load_time",
+                "semantic_type": null,
+                "fingerprint": {
+                    "global": {
+                        "distinct-count": 5,
+                        "nil%": 0
+                    },
+                    "type": {
+                        "type/Number": {
+                            "min": 590.94,
+                            "q1": 596.2875,
+                            "q3": 608.35,
+                            "max": 608.74,
+                            "sd": 7.89984620103453,
+                            "avg": 602.692
+                        }
+                    }
+                }
+            }
+        ]
     }
   
   
