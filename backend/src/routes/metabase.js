@@ -1444,11 +1444,111 @@ async function createURLAnalysisDashboard() {
   }
 }
 
+async function createPLTByBrowserDashboard() {
+    const sessionToken = await authenticate();
+    console.log("sessionToken", sessionToken);
+    const apiUrl = "http://localhost:3002/api/card";
+
+    const requestBody = {
+        "name": "PLT by Browser",
+        "type": "question",
+        "dataset_query": {
+            "database": 2,
+            "type": "native",
+            "native": {
+                "template-tags": {
+                    "start_date": {
+                        "type": "date",
+                        "name": "start_date",
+                        "id": "7f7b272c-4e26-406d-b66d-22d239acfa20",
+                        "display-name": "Start Date",
+                        "default": "2024-11-01",
+                        "required": true
+                    },
+                    "end_date": {
+                        "type": "date",
+                        "name": "end_date",
+                        "id": "42b73492-31db-4dc9-9480-89b77c3f7352",
+                        "display-name": "End Date",
+                        "default": "2025-01-31",
+                        "required": true
+                    }
+                },
+                "query": "SELECT\n  CASE\n    WHEN \"browser\" = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' THEN 'Chrome'\n    WHEN \"browser\" = 'Mozilla/5.0 (X11; Linux x86_64)' THEN 'Microsoft Edge'\n    WHEN \"browser\" = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, \"like Gecko) Chrome/132.0.0.0 Safari/537.36' THEN 'Mozilla Firefox'\n    ELSE ''\n  END AS \"browser\",\n  ROUND(\n    AVG(\n      CAST(\"additionalData\" ->> 'pageLoadTime' AS NUMERIC)\n    ),\n    2\n  ) AS avg_page_load_time\nFROM\n  \"Event\"\nWHERE\n  \"createdAt\" BETWEEN {{start_date}} AND {{end_date}}\nGROUP BY\n  \"browser\""
+            }
+        },
+        "display": "bar",
+        "description": null,
+        "visualization_settings": {
+            "graph.dimensions": [
+                "browser"
+            ],
+            "graph.metrics": [
+                "avg_page_load_time"
+            ]
+        },
+        "parameters": [
+            {
+                "id": "7f7b272c-4e26-406d-b66d-22d239acfa20",
+                "type": "date/single",
+                "target": [
+                    "variable",
+                    [
+                        "template-tag",
+                        "start_date"
+                    ]
+                ],
+                "name": "Start Date",
+                "slug": "start_date",
+                "default": "2024-11-01",
+                "required": true
+            },
+            {
+                "id": "42b73492-31db-4dc9-9480-89b77c3f7352",
+                "type": "date/single",
+                "target": [
+                    "variable",
+                    [
+                        "template-tag",
+                        "end_date"
+                    ]
+                ],
+                "name": "End Date",
+                "slug": "end_date",
+                "default": "2025-01-31",
+                "required": true
+            }
+        ],
+        "collection_id": null,
+        "collection_position": null,
+        "result_metadata": null
+    }
+  
+  
+    try {
+      const response = await axios.post(apiUrl, requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Metabase-Session": sessionToken
+        }
+      });
+      
+      await addDashboardToPrisma("PLT By Browser Dashboard", response.data.id);
+      return response.data.id;
+    } catch (error) {
+      console.error("Error creating dashboard:", error);
+      return null;
+    } finally {
+      await prisma.$disconnect();
+    }
+  }
+
 module.exports = {
   createMetabaseFormsDashboard,
   createUninteractedTimeDashboard,
   createPLTDashboard,
   createTimeSpentOnPageDashboard,
   createPageExitsCountDashboard,
-  createURLAnalysisDashboard
+  createURLAnalysisDashboard,
+  createPLTByBrowserDashboard
 };
